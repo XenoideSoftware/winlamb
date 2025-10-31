@@ -548,8 +548,8 @@ namespace wm {
 	struct setcursor : public params {
 		setcursor(const params& p) noexcept : params(p) { }
 		HWND  cursor_owner() const noexcept  { return reinterpret_cast<HWND>(this->wParam); }
-		short hit_test_code() const noexcept { return static_cast<short>(LOWORD(this->wParam)); }
-		WORD  mouse_msg_id() const noexcept  { return HIWORD(this->wParam); }
+		short hit_test_code() const noexcept { return static_cast<short>(LOWORD(this->lParam)); }
+		WORD  mouse_msg_id() const noexcept  { return HIWORD(this->lParam); }
 	};
 	struct setfocus : public params {
 		setfocus(const params& p) noexcept : params(p) { }
