@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "params.h"
+#include <shellapi.h>
 
 namespace wl {
 
