@@ -80,10 +80,10 @@ public:
 private:
 	void _init_setup_styles() noexcept {
 		this->setup.wndClassEx.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1);
-		this->setup.wndClassEx.hCursor = LoadCursorW(nullptr, reinterpret_cast<LPCWSTR>(IDC_ARROW));
+		this->setup.wndClassEx.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		this->setup.wndClassEx.style = CS_DBLCLKS;
-		this->setup.position = {CW_USEDEFAULT, CW_USEDEFAULT};
-		this->setup.size = {CW_USEDEFAULT, CW_USEDEFAULT};
+		this->setup.position = {(LONG)CW_USEDEFAULT, (LONG)CW_USEDEFAULT};
+		this->setup.size = { (LONG)CW_USEDEFAULT, (LONG)CW_USEDEFAULT};
 		this->setup.style = WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_BORDER;
 
 		// Useful styles to be added by user:

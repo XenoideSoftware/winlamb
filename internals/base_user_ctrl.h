@@ -7,9 +7,14 @@
 
 #pragma once
 #include "base_msg.h"
+
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
 #include <VsStyle.h>
 #include <Uxtheme.h>
+#if defined(_MSC_VER)
 #pragma comment(lib, "UxTheme.lib")
+#endif
+#endif
 
 namespace wl {
 namespace _wli {
@@ -34,6 +39,7 @@ private:
 	void _paint_themed_borders(const params& p) const noexcept {
 		DefWindowProcW(this->_baseMsg.hwnd(), WM_NCPAINT, p.wParam, p.lParam); // make system draw the scrollbar for us
 
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
 		if (!(GetWindowLongPtrW(this->_baseMsg.hwnd(), GWL_EXSTYLE) & WS_EX_CLIENTEDGE) ||
 			!IsThemeActive() ||
 			!IsAppThemed() ) return;
@@ -60,6 +66,7 @@ private:
 			CloseThemeData(hTheme);
 		}
 		ReleaseDC(this->_baseMsg.hwnd(), hdc);
+#endif
 	}
 };
 

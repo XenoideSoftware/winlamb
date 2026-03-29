@@ -6,11 +6,18 @@
  */
 
 #pragma once
+
+#if defined(_MSC_VER)
 #include <crtdbg.h>
+#endif
+
 #include <Windows.h>
 #include <CommCtrl.h>
 #include "lippincott.h"
+
+#if defined(_MSC_VER)
 #pragma comment(lib, "Comctl32.lib")
+#endif
 
 namespace wl {
 namespace _wli {
@@ -25,7 +32,9 @@ int run_main(HINSTANCE hInst, int cmdShow) noexcept {
 		lippincott();
 		ret = -1;
 	}
+#if defined(_MSC_VER)
 	_ASSERT(!_CrtDumpMemoryLeaks());
+#endif
 	return ret;
 }
 
@@ -33,7 +42,14 @@ int run_main(HINSTANCE hInst, int cmdShow) noexcept {
 }//namespace wl
 
 // Instantiates your main class into a generic WinMain function.
+#if defined(UNICODE) || defined(_UNICODE)
 #define RUN(wnd_mainT) \
 int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int cmdShow) { \
 	return wl::_wli::run_main<wnd_mainT>(hInst, cmdShow); \
 }
+#else
+#define RUN(wnd_mainT) \
+int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int cmdShow) { \
+	return wl::_wli::run_main<wnd_mainT>(hInst, cmdShow); \
+}
+#endif

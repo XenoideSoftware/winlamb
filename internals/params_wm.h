@@ -198,8 +198,10 @@ namespace wm {
 	struct endsession : public params {
 		endsession(const params& p) noexcept : params(p) { }
 		bool is_session_being_ended() const noexcept { return this->wParam != FALSE; }
+#if _WIN32_WINNT >= 0x0501
 		bool is_system_issue() const noexcept        { return (this->lParam & ENDSESSION_CLOSEAPP) != 0; }
 		bool is_forced_critical() const noexcept     { return (this->lParam & ENDSESSION_CRITICAL) != 0; }
+#endif
 		bool is_logoff() const noexcept              { return (this->lParam & ENDSESSION_LOGOFF) != 0; }
 		bool is_shutdown() const noexcept            { return this->lParam == 0; }
 	};
@@ -238,7 +240,9 @@ namespace wm {
 		geticon(const params& p) noexcept : params(p) { }
 		bool is_big() const noexcept       { return this->wParam == ICON_BIG; }
 		bool is_small() const noexcept     { return this->wParam == ICON_SMALL; }
+#if _WIN32_WINNT >= 0x0501
 		bool is_small_app() const noexcept { return this->wParam == ICON_SMALL2; }
+#endif
 		UINT dpi() const noexcept          { return static_cast<UINT>(this->lParam); }
 	};
 	struct getminmaxinfo : public params {
@@ -308,9 +312,11 @@ namespace wm {
 	};
 	struct inputlangchangerequest : public params {
 		inputlangchangerequest(const params& p) noexcept : params(p) { }
+#if _WIN32_WINNT >= 0x0501
 		bool previous_chosen() const noexcept      { return (this->wParam & INPUTLANGCHANGE_BACKWARD) != 0; }
 		bool next_chosen() const noexcept          { return (this->wParam & INPUTLANGCHANGE_FORWARD) != 0; }
 		bool can_be_used_with_sys() const noexcept { return (this->wParam & INPUTLANGCHANGE_SYSCHARSET) != 0; }
+#endif
 		HKL  keyboard_layout() const noexcept      { return reinterpret_cast<HKL>(this->lParam); }
 	};
 	struct keydown : public params {
@@ -339,8 +345,10 @@ namespace wm {
 		bool  has_middle_btn() const noexcept { return (this->wParam & MK_MBUTTON) != 0; }
 		bool  has_right_btn() const noexcept  { return (this->wParam & MK_RBUTTON) != 0; }
 		bool  has_shift() const noexcept      { return (this->wParam & MK_SHIFT) != 0; }
+#if _WIN32_WINNT >= 0x0501
 		bool  has_xbtn1() const noexcept      { return (this->wParam & MK_XBUTTON1) != 0; }
 		bool  has_xbtn2() const noexcept      { return (this->wParam & MK_XBUTTON2) != 0; }
+#endif
 		POINT pos() const noexcept            { return {GET_X_LPARAM(this->lParam), GET_Y_LPARAM(this->lParam)}; }
 	};
 	struct lbuttondown   : public lbuttondblclk { lbuttondown(const params& p) noexcept   : lbuttondblclk(p) { } };
@@ -412,8 +420,10 @@ namespace wm {
 		bool  has_middle_btn() const noexcept { return (LOWORD(this->wParam) & MK_MBUTTON) != 0; }
 		bool  has_right_btn() const noexcept  { return (LOWORD(this->wParam) & MK_RBUTTON) != 0; }
 		bool  has_shift() const noexcept      { return (LOWORD(this->wParam) & MK_SHIFT) != 0; }
+#if _WIN32_WINNT >= 0x0501
 		bool  has_xbtn1() const noexcept      { return (LOWORD(this->wParam) & MK_XBUTTON1) != 0; }
 		bool  has_xbtn2() const noexcept      { return (LOWORD(this->wParam) & MK_XBUTTON2) != 0; }
+#endif
 		POINT pos() const noexcept            { return {GET_X_LPARAM(this->lParam), GET_Y_LPARAM(this->lParam)}; }
 	};
 	struct move : public params {
@@ -501,7 +511,9 @@ namespace wm {
 		WORD  child_id() const noexcept      { return HIWORD(this->wParam); }
 		HWND  child_hwnd() const noexcept    { return reinterpret_cast<HWND>(this->lParam); }
 		POINT pos() const noexcept           { return {GET_X_LPARAM(this->lParam), GET_Y_LPARAM(this->lParam)}; }
+#if _WIN32_WINNT >= 0x0501
 		bool  is_xbutton1() const noexcept   { return HIWORD(this->wParam) == XBUTTON1; }
+#endif
 		WORD  pointer_flag() const noexcept  { return HIWORD(this->wParam); }
 	};
 	struct powerbroadcast : public params {
@@ -509,8 +521,10 @@ namespace wm {
 		bool                    is_power_status_change() const noexcept  { return this->wParam == PBT_APMPOWERSTATUSCHANGE; }
 		bool                    is_resuming() const noexcept             { return this->wParam == PBT_APMRESUMEAUTOMATIC; }
 		bool                    is_suspending() const noexcept           { return this->wParam == PBT_APMSUSPEND; }
+#if _WIN32_WINNT >= 0x0501
 		bool                    is_power_setting_change() const noexcept { return this->wParam == PBT_POWERSETTINGCHANGE; }
 		POWERBROADCAST_SETTING& power_setting() const noexcept           { return *reinterpret_cast<POWERBROADCAST_SETTING*>(this->lParam); }
+#endif
 	};
 	struct print : public params {
 		print(const params& p) noexcept : params(p) { }
@@ -525,8 +539,10 @@ namespace wm {
 	WINLAMB_EMPTYWM(querydragicon);
 	struct queryendsession : public params {
 		queryendsession(const params& p) noexcept : params(p) { }
+#if _WIN32_WINNT >= 0x0501
 		bool is_system_issue() const noexcept    { return (this->lParam & ENDSESSION_CLOSEAPP) != 0; }
 		bool is_forced_critical() const noexcept { return (this->lParam & ENDSESSION_CRITICAL) != 0; }
+#endif
 		bool is_logoff() const noexcept          { return (this->lParam & ENDSESSION_LOGOFF) != 0; }
 		bool is_shutdown() const noexcept        { return this->lParam == 0; }
 	};

@@ -8,7 +8,7 @@
 #pragma once
 #include <Windows.h>
 #include <CommCtrl.h>
-#include <VersionHelpers.h>
+#include "os_version.h"
 
 namespace wl {
 namespace _wli {
@@ -21,6 +21,7 @@ public:
 		// Windows 10, so we don't need to implement it here.
 		if (IsWindows10OrGreater()) return;
 
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
 		EnumChildWindows(hWnd, [](HWND hChild, LPARAM lp) noexcept -> BOOL {
 			static UINT_PTR uniqueSubclassId = 1;
 			if (GetWindowLongPtrW(hChild, GWL_STYLE) & WS_TABSTOP) {
@@ -29,9 +30,11 @@ public:
 			}
 			return TRUE;
 		}, reinterpret_cast<LPARAM>(hWnd));
+#endif
 	}
 
 private:
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
 	static LRESULT CALLBACK _scroll_proc(HWND hChild, UINT msg, WPARAM wp, LPARAM lp,
 		UINT_PTR idSubclass, DWORD_PTR refData) noexcept
 	{
@@ -55,6 +58,7 @@ private:
 		}
 		return DefSubclassProc(hChild, msg, wp, lp);
 	}
+#endif
 };
 
 }//namespace _wli
