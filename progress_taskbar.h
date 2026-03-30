@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include "com.h"
 #include "wnd.h"
+
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0601
 #include <ShObjIdl.h>
 
 namespace wl {
@@ -75,6 +77,8 @@ private:
 		this->_bar->SetProgressState(this->_hWnd, state);
 		return *this;
 	}
-};
+};//class progress_taskbar
 
 }//namespace wl
+
+#endif // _WIN32_WINNT >= 0x0601

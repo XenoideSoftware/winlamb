@@ -92,13 +92,21 @@ public:
 	// Loads an icon from resource into the image list.
 	image_list& load_from_resource(int iconId, HWND hParent) {
 		return this->load_from_resource(iconId,
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE)));
+#else
+			reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE)));
+#endif
 	}
 
 	// Loads an icon from resource into the image list.
 	image_list& load_from_resource(std::initializer_list<int> iconIds, HWND hParent) {
 		return this->load_from_resource(iconIds,
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE)));
+#else
+			reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE)));
+#endif
 	}
 
 	// Loads the icon used by Windows Explorer to represent the given file type.

@@ -64,7 +64,11 @@ public:
 				"CreateDialogParam failed for control dialog");
 		}
 
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 		SetWindowLongPtrW(this->_hWnd, GWLP_ID, ctrlId); // so the control has an ID
+#else
+		SetWindowLongW(this->_hWnd, GWL_ID, ctrlId); // so the control has an ID
+#endif
 		SetWindowPos(this->_hWnd, nullptr,
 			position.x, position.y,
 			size.cx, size.cy, SWP_NOZORDER);

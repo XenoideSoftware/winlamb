@@ -56,7 +56,11 @@ public:
 
 	menu& load_from_resource(int resourceId, HWND hOwner) {
 		return this->load_from_resource(resourceId,
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hOwner, GWLP_HINSTANCE)));
+#else
+			reinterpret_cast<HINSTANCE>(GetWindowLongW(hOwner, GWL_HINSTANCE)));
+#endif
 	}
 
 	menu& load_from_resource_submenu(int resourceId, size_t subMenuIndex, HINSTANCE hInst = nullptr) {
@@ -67,7 +71,11 @@ public:
 
 	menu& load_from_resource_submenu(int resourceId, size_t subMenuIndex, HWND hOwner) {
 		return this->load_from_resource_submenu(resourceId, subMenuIndex,
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hOwner, GWLP_HINSTANCE)));
+#else
+			reinterpret_cast<HINSTANCE>(GetWindowLongW(hOwner, GWL_HINSTANCE)));
+#endif
 	}
 
 	menu get_submenu(size_t pos) const noexcept {

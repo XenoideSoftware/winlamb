@@ -7,7 +7,7 @@
 
 #pragma once
 #include <system_error>
-#include <VersionHelpers.h>
+#include "internals/os_version.h"
 #include "wnd.h"
 #include "internals/enable_bitmask_operators.h"
 
@@ -102,7 +102,7 @@ public:
 	font& create_ui() {
 		NONCLIENTMETRICS ncm{};
 		ncm.cbSize = sizeof(ncm);
-		if (!IsWindowsVistaOrGreater()) {
+		if (!_wli::IsWindowsVistaOrGreater()) {
 			ncm.cbSize -= sizeof(ncm.iBorderWidth);
 		}
 		SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);

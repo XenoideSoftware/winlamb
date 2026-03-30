@@ -59,7 +59,11 @@ public:
 			throw std::logic_error("Trying to create a statusbar twice.");
 		}
 
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 		DWORD parentStyle = static_cast<DWORD>(GetWindowLongPtrW(hParent, GWL_STYLE));
+#else
+		DWORD parentStyle = static_cast<DWORD>(GetWindowLongW(hParent, GWL_STYLE));
+#endif
 		bool canStretch = (parentStyle & WS_MAXIMIZEBOX) != 0 ||
 			(parentStyle & WS_SIZEBOX) != 0;
 		this->_baseNativeCtrl.create(hParent, 0, nullptr, {0,0}, {0,0}, STATUSCLASSNAME,

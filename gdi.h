@@ -290,7 +290,11 @@ public:
 
 	// Gets the color of the current background brush.
 	COLORREF get_bk_brush_color() const noexcept {
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 		ULONG_PTR hbrBg = GetClassLongPtrW(this->_hWnd, GCLP_HBRBACKGROUND);
+#else
+		DWORD hbrBg = GetClassLongW(this->_hWnd, GCL_HBRBACKGROUND);
+#endif
 		if (hbrBg > 100) {
 			// The hbrBackground is a brush handle, not a system color constant.
 			// This 100 value is arbitrary, based on system color constants like COLOR_BTNFACE.
@@ -329,8 +333,13 @@ public:
 		this->_hBmpOld = reinterpret_cast<HBITMAP>(SelectObject(this->_hDC, this->_hBmp));
 
 		RECT rcClient = {0, 0, this->size().cx, this->size().cy};
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 		FillRect(this->_hDC, &rcClient,
 			reinterpret_cast<HBRUSH>(GetClassLongPtrW(this->hwnd(), GCLP_HBRBACKGROUND)) );
+#else
+		FillRect(this->_hDC, &rcClient,
+			reinterpret_cast<HBRUSH>(GetClassLongW(this->hwnd(), GCL_HBRBACKGROUND)) );
+#endif
 	}
 
 	explicit dc_painter_buffered(const wnd* w) noexcept :

@@ -43,7 +43,11 @@ private:
 public:
 	~base_window() {
 		if (this->_hWnd) {
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			SetWindowLongPtrW(this->_hWnd, GWLP_USERDATA, 0);
+#else
+			SetWindowLongW(this->_hWnd, GWL_USERDATA, 0);
+#endif
 		}
 	}
 
@@ -56,7 +60,12 @@ public:
 			throw std::invalid_argument("To create a window, HINSTANCE or parent HWND must be provided.");
 		}
 		if (!hInst) {
+									// on Win9x GWLP_HINSTANCE is not defined; use GWL_HINSTANCE
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE));
+#else
+			hInst = reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE));
+#endif
 		}
 
 		WNDCLASSEXW wcx = this->_gen_wndclassex(setup.wndClassEx, hInst);
@@ -119,15 +128,27 @@ private:
 
 		if (msg == WM_NCCREATE) {
 			pSelf = reinterpret_cast<base_window*>(reinterpret_cast<CREATESTRUCT*>(lp)->lpCreateParams);
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			SetWindowLongPtrW(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pSelf));
+#else
+			SetWindowLongW(hWnd, GWL_USERDATA, reinterpret_cast<LONG>(pSelf));
+#endif
 			pSelf->_hWnd = hWnd; // store HWND
 		} else {
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			pSelf = reinterpret_cast<base_window*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
+#else
+			pSelf = reinterpret_cast<base_window*>(GetWindowLongW(hWnd, GWL_USERDATA));
+#endif
 		}
 
 		auto cleanupIfDestroyed = [&]() noexcept -> void {
 			if (msg == WM_NCDESTROY) {
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 				SetWindowLongPtrW(hWnd, GWLP_USERDATA, 0);
+#else
+				SetWindowLongW(hWnd, GWL_USERDATA, 0);
+#endif
 				if (pSelf) {
 					pSelf->_hWnd = nullptr; // clear HWND
 				}

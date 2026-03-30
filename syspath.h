@@ -27,7 +27,9 @@ public:
 	static std::wstring app_data_local()    { return _get_shell_folder(CSIDL_LOCAL_APPDATA); }
 	static std::wstring app_data_common()   { return _get_shell_folder(CSIDL_COMMON_APPDATA); }
 	static std::wstring program_files()     { return _get_shell_folder(CSIDL_PROGRAM_FILES); }
+#if defined(CSIDL_PROGRAM_FILESX86)
 	static std::wstring program_files_x86() { return _get_shell_folder(CSIDL_PROGRAM_FILESX86); }
+#endif
 
 	static std::wstring temp() {
 		wchar_t buf[MAX_PATH + 1]{};

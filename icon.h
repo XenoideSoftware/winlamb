@@ -66,7 +66,11 @@ public:
 
 	icon& load_from_resource(int iconId, SIZE resolution, HWND hParent) {
 		return this->load_from_resource(iconId, resolution,
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 			reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE)));
+#else
+			reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE)));
+#endif
 	}
 
 	// Loads the icon used by Windows Explorer to represent the given file type.
