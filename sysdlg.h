@@ -12,6 +12,7 @@
 #include "str.h"
 #include "wnd.h"
 #include <Shlobj.h>
+#include "internals/compat.h"
 #include "internals/sysdlg_priv.h"
 #include <tchar.h>
 #include "internals/tstring.h"
@@ -25,44 +26,8 @@ namespace sysdlg {
 inline int msgbox(HWND hParent, const wl::tstring& title, const wl::tstring& text, UINT uType = 0) {
 	if (hParent) { // the global hook will center the messagebox window on parent
 		_wli::sysdlg_priv::hWndParent.val = hParent;
-		_wli::sysdlg_priv::hHookMsgBox.val = SetWindowsHookEx(WH_CBT, [](int code, WPARAM wp, LPARAM lp) noexcept -> LRESULT {
-			// http://www.codeguru.com/cpp/w-p/win32/messagebox/print.php/c4541
-			if (code == HCBT_ACTIVATE) {
-				HWND hMsgbox = reinterpret_cast<HWND>(wp);
-				RECT rcMsgbox{}, rcParent{};
-
-				if (hMsgbox &&
-					_wli::sysdlg_priv::hWndParent.val &&
-					GetWindowRect(hMsgbox, &rcMsgbox) &&
-					GetWindowRect(_wli::sysdlg_priv::hWndParent.val, &rcParent))
-				{
-					RECT  rcScreen{};
-					POINT pos{};
-					SystemParametersInfo(SPI_GETWORKAREA, 0, static_cast<PVOID>(&rcScreen), 0); // size of desktop
-
-					// Adjusted x,y coordinates to message box window.
-					pos.x = rcParent.left + (rcParent.right - rcParent.left) / 2 - (rcMsgbox.right - rcMsgbox.left) / 2;
-					pos.y = rcParent.top + (rcParent.bottom - rcParent.top) / 2 - (rcMsgbox.bottom - rcMsgbox.top) / 2;
-
-					// Screen out-of-bounds corrections.
-					if (pos.x < 0) {
-						pos.x = 0;
-					} else if (pos.x + (rcMsgbox.right - rcMsgbox.left) > rcScreen.right) {
-						pos.x = rcScreen.right - (rcMsgbox.right - rcMsgbox.left);
-					}
-					if (pos.y < 0) {
-						pos.y = 0;
-					} else if (pos.y + (rcMsgbox.bottom - rcMsgbox.top) > rcScreen.bottom) {
-						pos.y = rcScreen.bottom - (rcMsgbox.bottom - rcMsgbox.top);
-					}
-					MoveWindow(hMsgbox, pos.x, pos.y,
-						rcMsgbox.right - rcMsgbox.left, rcMsgbox.bottom - rcMsgbox.top,
-						FALSE);
-				}
-				UnhookWindowsHookEx(_wli::sysdlg_priv::hHookMsgBox.val); // release global hook
-			}
-			return CallNextHookEx(nullptr, code, wp, lp);
-		}, nullptr, GetCurrentThreadId());
+		_wli::sysdlg_priv::hHookMsgBox.val = SetWindowsHookEx(WH_CBT,
+			&_wli::sysdlg_priv::msgbox_cbt_proc, nullptr, GetCurrentThreadId());
 
 		if (!_wli::sysdlg_priv::hHookMsgBox.val) {
 			throw std::system_error(GetLastError(), std::system_category(),

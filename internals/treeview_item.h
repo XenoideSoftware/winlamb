@@ -63,10 +63,10 @@ public:
 		TVINSERTSTRUCT tvi{};
 		tvi.hParent = this->_hTreeItem;
 		tvi.hInsertAfter = TVI_LAST;
-		tvi.itemex.mask = TVIF_TEXT | (imageListIconIndex == -1 ? 0 : (TVIF_IMAGE | TVIF_SELECTEDIMAGE));
-		tvi.itemex.pszText = const_cast<TCHAR*>(text);
-		tvi.itemex.iImage = imageListIconIndex;
-		tvi.itemex.iSelectedImage = imageListIconIndex;
+		tvi.item.mask = TVIF_TEXT | (imageListIconIndex == -1 ? 0 : (TVIF_IMAGE | TVIF_SELECTEDIMAGE));
+		tvi.item.pszText = const_cast<TCHAR*>(text);
+		tvi.item.iImage = imageListIconIndex;
+		tvi.item.iSelectedImage = imageListIconIndex;
 
 		return {TreeView_InsertItem(this->_hTree, &tvi),
 			this->_hTree}; // return newly added item
@@ -99,7 +99,7 @@ public:
 
 	wl::tstring get_text() const {
 		TCHAR tmpBuf[MAX_PATH]{}; // arbitrary length
-		TVITEMEX tvi{};
+		TVITEM tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = TVIF_TEXT;
 		tvi.cchTextMax = ARRAYSIZE(tmpBuf);
@@ -110,7 +110,7 @@ public:
 	}
 
 	treeview_item& set_text(const TCHAR* text) noexcept {
-		TVITEMEX tvi{};
+		TVITEM tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = TVIF_TEXT;
 		tvi.pszText = const_cast<TCHAR*>(text);
@@ -124,7 +124,7 @@ public:
 	}
 
 	LPARAM get_param() const noexcept {
-		TVITEMEX tvi{};
+		TVITEM tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = TVIF_PARAM;
 
@@ -133,7 +133,7 @@ public:
 	}
 
 	treeview_item& set_param(LPARAM lp) noexcept {
-		TVITEMEX tvi{};
+		TVITEM tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = TVIF_PARAM;
 		tvi.lParam = lp;
@@ -143,7 +143,7 @@ public:
 	}
 
 	int get_icon_index() const noexcept {
-		TVITEMEX tvi{};
+		TVITEM tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = TVIF_IMAGE;
 
@@ -152,7 +152,7 @@ public:
 	}
 
 	treeview_item& set_icon_index(int imagelistIconIndex) noexcept {
-		TVITEMEX tvi{};
+		TVITEM tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = LVIF_IMAGE | TVIF_SELECTEDIMAGE;
 		tvi.iImage = imagelistIconIndex;

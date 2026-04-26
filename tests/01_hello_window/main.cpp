@@ -2,10 +2,53 @@
 
 #include <string>
 #include <tchar.h>
-
 #include <button.h>
 #include <label.h>
 #include <window_main.h>
+#include <button.h>
+#include <checkbox.h>
+#include <com.h>
+#include <combobox.h>
+#include <datetime.h>
+#include <datetime_picker.h>
+#include <dialog_control.h>
+#include <dialog_main.h>
+#include <dialog_modal.h>
+#include <dialog_modeless.h>
+#include <download.h>
+#include <executable.h>
+#include <file.h>
+#include <file_ini.h>
+#include <file_mapped.h>
+#include <font.h>
+#include <gdi.h>
+#include <icon.h>
+#include <image_list.h>
+#include <insert_order_map.h>
+#include <label.h>
+#include <listview.h>
+#include <menu.h>
+#include <path.h>
+#include <progressbar.h>
+#include <progress_taskbar.h>
+#include <radio.h>
+#include <radio_group.h>
+#include <resizer.h>
+#include <scrollinfo.h>
+#include <statusbar.h>
+#include <str.h>
+#include <subclass.h>
+#include <sysdlg.h>
+#include <syspath.h>
+#include <textbox.h>
+#include <treeview.h>
+#include <vec.h>
+#include <version.h>
+#include <window_control.h>
+#include <window_main.h>
+#include <wnd.h>
+#include <xml.h>
+#include <zip.h>
 
 class HelloWindow final : public wl::window_main {
 private:

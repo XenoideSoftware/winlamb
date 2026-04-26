@@ -34,6 +34,19 @@ else()
         set_property(DIRECTORY APPEND PROPERTY VS_GLOBAL_CharacterSet MultiByte)
     endif()
 endif()
+
+# Many winlamb features (Common Controls v6 image lists, treeview TVITEMEX,
+# progressbar marquee, statusbar tooltips, SHGetImageList, etc.) live behind
+# Windows XP-era version guards in the SDK. TDM-GCC / older MinGW default to
+# a sub-XP _WIN32_WINNT, which hides those symbols even when the libraries
+# themselves are present. Pin XP (0x0501) as the build-time API surface so
+# the headers expose what the code actually uses; binaries still run on Win9x
+# at runtime — missing entry points just fail at LoadLibrary/GetProcAddress
+# time, which is what the existing os_version.h gates already check for.
+target_compile_definitions(winlamb INTERFACE
+    _WIN32_WINNT=0x0501
+    WINVER=0x0501
+    _WIN32_IE=0x0501)
 target_link_libraries(winlamb INTERFACE comctl32)
 
 if(MSVC)

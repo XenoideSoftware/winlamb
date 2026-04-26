@@ -8,6 +8,7 @@
 #pragma once
 #include <stdexcept>
 #include <vector>
+#include "internals/compat.h"
 #include "internals/str_priv.h"
 #include "internals/tstring.h"
 #include <tchar.h>
@@ -119,7 +120,7 @@ inline bool begins_withi(const tstring& s, const TCHAR* what) noexcept {
 	if (!_wli::str_priv::ends_begins_first_check(s, what, whatLen)) {
 		return false;
 	}
-	return !_tcsnicmp(s.c_str(), what, whatLen);
+	return !_wli::compat::tcsnicmp(s.c_str(), what, whatLen);
 }
 
 // Returns a new string converted to uppercase.
@@ -245,9 +246,9 @@ inline tstring& replacei(tstring& haystack, const tstring& needle, const tstring
 // Does the string represent a signed int?
 inline bool is_int(const tstring& s) noexcept {
 	if (s.empty()) return false;
-	if (s[0] != _T('-') && !_istdigit(s[0]) && !_istblank(s[0])) return false;
+	if (s[0] != _T('-') && !_istdigit(s[0]) && !_wli::compat::istblank(s[0])) return false;
 	for (TCHAR ch : s) {
-		if (!_istdigit(ch) && !_istblank(ch)) return false;
+		if (!_istdigit(ch) && !_wli::compat::istblank(ch)) return false;
 	}
 	return true;
 }
@@ -256,7 +257,7 @@ inline bool is_int(const tstring& s) noexcept {
 inline bool is_uint(const tstring& s) noexcept {
 	if (s.empty()) return false;
 	for (TCHAR ch : s) {
-		if (!_istdigit(ch) && !_istblank(ch)) return false;
+		if (!_istdigit(ch) && !_wli::compat::istblank(ch)) return false;
 	}
 	return true;
 }
@@ -265,7 +266,7 @@ inline bool is_uint(const tstring& s) noexcept {
 inline bool is_hex(const tstring& s) noexcept {
 	if (s.empty()) return false;
 	for (TCHAR ch : s) {
-		if (!_istxdigit(ch) && !_istblank(ch)) return false;
+		if (!_istxdigit(ch) && !_wli::compat::istblank(ch)) return false;
 	}
 	return true;
 }
@@ -273,7 +274,7 @@ inline bool is_hex(const tstring& s) noexcept {
 // Does the string represent a float?
 inline bool is_float(const tstring& s) noexcept {
 	if (s.empty()) return false;
-	if (s[0] != _T('-') && s[0] != _T('.') && !_istdigit(s[0]) && !_istblank(s[0])) return false;
+	if (s[0] != _T('-') && s[0] != _T('.') && !_istdigit(s[0]) && !_wli::compat::istblank(s[0])) return false;
 
 	bool hasDot = false;
 	for (TCHAR ch : s) {
@@ -284,7 +285,7 @@ inline bool is_float(const tstring& s) noexcept {
 				hasDot = true;
 			}
 		} else {
-			if (!_istdigit(ch) && !_istblank(ch)) return false;
+			if (!_istdigit(ch) && !_wli::compat::istblank(ch)) return false;
 		}
 	}
 	return true;
@@ -471,9 +472,7 @@ inline tstring to_tstring_with_separator(int number, TCHAR separator = _T(',')) 
 			if (num < 10) lstrcat(buf, _T("0"));
 		}
 
-#pragma warning (disable: 4996)
-		_itot(num, buf + lstrlen(buf), 10);
-#pragma warning (default: 4996)
+		_wli::compat::itot(num, buf + lstrlen(buf), 10);
 
 		if (firstPass) {
 			firstPass = false;

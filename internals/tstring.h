@@ -10,6 +10,7 @@
 #include <string>
 #include <tchar.h>
 #include <Windows.h>
+#include "compat.h"
 
 namespace wl {
 

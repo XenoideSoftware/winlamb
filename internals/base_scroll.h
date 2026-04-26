@@ -22,19 +22,24 @@ public:
 		if (IsWindows10OrGreater()) return;
 
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
-		EnumChildWindows(hWnd, [](HWND hChild, LPARAM lp) noexcept -> BOOL {
-			static UINT_PTR uniqueSubclassId = 1;
-			if (GetWindowLongPtr(hChild, GWL_STYLE) & WS_TABSTOP) {
-				SetWindowSubclass(hChild, _scroll_proc, uniqueSubclassId++,
-					static_cast<DWORD_PTR>(lp)); // subclass every focusable control
-			}
-			return TRUE;
-		}, reinterpret_cast<LPARAM>(hWnd));
+		// 32-bit MinGW/TDM-GCC won't implicitly convert a captureless lambda's
+		// __cdecl pointer to the __stdcall ENUMWINDOWSPROC signature, so use
+		// a free CALLBACK function instead.
+		EnumChildWindows(hWnd, &_enum_child_proc, reinterpret_cast<LPARAM>(hWnd));
 #endif
 	}
 
 private:
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
+	static BOOL CALLBACK _enum_child_proc(HWND hChild, LPARAM lp) noexcept {
+		static UINT_PTR uniqueSubclassId = 1;
+		if (GetWindowLongPtr(hChild, GWL_STYLE) & WS_TABSTOP) {
+			SetWindowSubclass(hChild, _scroll_proc, uniqueSubclassId++,
+				static_cast<DWORD_PTR>(lp)); // subclass every focusable control
+		}
+		return TRUE;
+	}
+
 	static LRESULT CALLBACK _scroll_proc(HWND hChild, UINT msg, WPARAM wp, LPARAM lp,
 		UINT_PTR idSubclass, DWORD_PTR refData) noexcept
 	{

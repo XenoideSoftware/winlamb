@@ -8,7 +8,18 @@
 #pragma once
 #include <Windows.h>
 #include <CommCtrl.h>
-#include <commoncontrols.h> // IID_IImageList
+// <commoncontrols.h> ships in newer Platform SDKs and provides IImageList /
+// IID_IImageList / SHIL_*. Older toolchains (TDM-GCC, pre-w64 MinGW) lack it,
+// so internals/compat.h supplies a polyfill that's good enough for our usage
+// (we never call the IImageList vtable — the result is consumed as HIMAGELIST).
+#if defined(__has_include)
+    #if __has_include(<commoncontrols.h>)
+        #include <commoncontrols.h>
+    #endif
+#elif defined(_MSC_VER)
+    #include <commoncontrols.h>
+#endif
+#include "internals/compat.h"
 #include "com.h"
 #include <tchar.h>
 
