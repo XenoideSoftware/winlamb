@@ -13,6 +13,8 @@
 #include "wnd.h"
 #include <Shlobj.h>
 #include "internals/sysdlg_priv.h"
+#include <tchar.h>
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -20,10 +22,10 @@ namespace wl {
 namespace sysdlg {
 
 // Ordinary MessageBox, centered at parent.
-inline int msgbox(HWND hParent, const std::wstring& title, const std::wstring& text, UINT uType = 0) {
+inline int msgbox(HWND hParent, const wl::tstring& title, const wl::tstring& text, UINT uType = 0) {
 	if (hParent) { // the global hook will center the messagebox window on parent
 		_wli::sysdlg_priv::hWndParent.val = hParent;
-		_wli::sysdlg_priv::hHookMsgBox.val = SetWindowsHookExW(WH_CBT, [](int code, WPARAM wp, LPARAM lp) noexcept -> LRESULT {
+		_wli::sysdlg_priv::hHookMsgBox.val = SetWindowsHookEx(WH_CBT, [](int code, WPARAM wp, LPARAM lp) noexcept -> LRESULT {
 			// http://www.codeguru.com/cpp/w-p/win32/messagebox/print.php/c4541
 			if (code == HCBT_ACTIVATE) {
 				HWND hMsgbox = reinterpret_cast<HWND>(wp);
@@ -36,7 +38,7 @@ inline int msgbox(HWND hParent, const std::wstring& title, const std::wstring& t
 				{
 					RECT  rcScreen{};
 					POINT pos{};
-					SystemParametersInfoW(SPI_GETWORKAREA, 0, static_cast<PVOID>(&rcScreen), 0); // size of desktop
+					SystemParametersInfo(SPI_GETWORKAREA, 0, static_cast<PVOID>(&rcScreen), 0); // size of desktop
 
 					// Adjusted x,y coordinates to message box window.
 					pos.x = rcParent.left + (rcParent.right - rcParent.left) / 2 - (rcMsgbox.right - rcMsgbox.left) / 2;
@@ -67,16 +69,16 @@ inline int msgbox(HWND hParent, const std::wstring& title, const std::wstring& t
 				"SetWindowsHookEx failed for message box");
 		}
 	}
-	return MessageBoxW(hParent, text.c_str(), title.c_str(), uType);
+	return MessageBox(hParent, text.c_str(), title.c_str(), uType);
 }
 
 // Ordinary MessageBox, centered at parent.
-inline int msgbox(const wnd* parent, const std::wstring& title, const std::wstring& text, UINT uType = 0) {
+inline int msgbox(const wnd* parent, const wl::tstring& title, const wl::tstring& text, UINT uType = 0) {
 	return msgbox(parent->hwnd(), title, text, uType);
 }
 
 // System dialog to select one file to be opened.
-inline bool open_file(HWND hParent, const TCHAR* filterWithPipes, std::wstring& buf) {
+inline bool open_file(HWND hParent, const TCHAR* filterWithPipes, wl::tstring& buf) {
 	OPENFILENAME         ofn{};
 	TCHAR              tmpBuf[MAX_PATH]{};
 	std::vector<TCHAR> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
@@ -88,20 +90,20 @@ inline bool open_file(HWND hParent, const TCHAR* filterWithPipes, std::wstring& 
 	ofn.nMaxFile    = ARRAYSIZE(tmpBuf);
 	ofn.Flags       = OFN_EXPLORER | OFN_ENABLESIZING | OFN_FILEMUSTEXIST;// | OFN_HIDEREADONLY;
 
-	bool ret = GetOpenFileNameW(&ofn) != 0;
+	bool ret = GetOpenFileName(&ofn) != 0;
 	if (ret) buf = tmpBuf;
 	return ret;
 }
 
 // System dialog to select one file to be opened.
-inline bool open_file(const wnd* parent, const TCHAR* filterWithPipes, std::wstring& buf) {
+inline bool open_file(const wnd* parent, const TCHAR* filterWithPipes, wl::tstring& buf) {
 	return open_file(parent->hwnd(), filterWithPipes, buf);
 }
 
 // System dialog to select many files to be opened.
-inline bool open_files(HWND hParent, const TCHAR* filterWithPipes, std::vector<std::wstring>& arrBuf) {
+inline bool open_files(HWND hParent, const TCHAR* filterWithPipes, std::vector<wl::tstring>& arrBuf) {
 	OPENFILENAME         ofn{};
-	std::vector<TCHAR> multiBuf(65536, L'\0'); // http://www.askjf.com/?q=2179s http://www.askjf.com/?q=2181s
+	std::vector<TCHAR> multiBuf(65536, _T('\0')); // http://www.askjf.com/?q=2179s http://www.askjf.com/?q=2181s
 	std::vector<TCHAR> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
 	arrBuf.clear();
 
@@ -116,7 +118,7 @@ inline bool open_files(HWND hParent, const TCHAR* filterWithPipes, std::vector<s
 	// in debug mode, but nothing else happens. The only way to get rid of it was using OFN_EX_NOPLACESBAR flag,
 	// don't know why!
 
-	if (!GetOpenFileNameW(&ofn)) {
+	if (!GetOpenFileName(&ofn)) {
 		DWORD err = CommDlgExtendedError();
 		if (err == FNERR_BUFFERTOOSMALL) {
 			throw std::system_error(err, std::system_category(),
@@ -125,7 +127,7 @@ inline bool open_files(HWND hParent, const TCHAR* filterWithPipes, std::vector<s
 		return false;
 	}
 
-	std::vector<std::wstring> strs = str::split_multi_zero(&multiBuf[0]);
+	std::vector<wl::tstring> strs = str::split_multi_zero(&multiBuf[0]);
 	if (strs.empty()) {
 		throw std::runtime_error("GetOpenFileName didn't return multiple strings.");
 	}
@@ -133,13 +135,13 @@ inline bool open_files(HWND hParent, const TCHAR* filterWithPipes, std::vector<s
 	if (strs.size() == 1) { // if user selected only 1 file, the string is the full path, and that's all
 		arrBuf.emplace_back(strs[0]);
 	} else { // user selected 2 or more files
-		std::wstring& basePath = strs[0]; // 1st string is the base path; others are the filenames
+		wl::tstring& basePath = strs[0]; // 1st string is the base path; others are the filenames
 		arrBuf.resize(strs.size() - 1); // alloc return buffer
 
 		for (size_t i = 0; i < strs.size() - 1; ++i) {
 			arrBuf[i].reserve(basePath.length() + strs[i + 1].size() + 1); // room for backslash
 			arrBuf[i] = basePath;
-			arrBuf[i].append(L"\\").append(strs[i + 1]); // concat folder + file
+			arrBuf[i].append(_T("\\")).append(strs[i + 1]); // concat folder + file
 		}
 		std::sort(arrBuf.begin(), arrBuf.end());
 	}
@@ -147,17 +149,17 @@ inline bool open_files(HWND hParent, const TCHAR* filterWithPipes, std::vector<s
 }
 
 // System dialog to select many files to be opened.
-inline bool open_files(const wnd* parent, const TCHAR* filterWithPipes, std::vector<std::wstring>& arrBuf) {
+inline bool open_files(const wnd* parent, const TCHAR* filterWithPipes, std::vector<wl::tstring>& arrBuf) {
 	return open_files(parent->hwnd(), filterWithPipes, arrBuf);
 }
 
 // System dialog to select where one file will be saved.
-inline bool save_file(HWND hParent, const TCHAR* filterWithPipes, std::wstring& buf, const std::wstring& defFile) {
+inline bool save_file(HWND hParent, const TCHAR* filterWithPipes, wl::tstring& buf, const wl::tstring& defFile) {
 	OPENFILENAME         ofn{};
 	TCHAR              tmpBuf[MAX_PATH]{};
 	std::vector<TCHAR> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
 
-	if (!defFile.empty()) lstrcpyW(tmpBuf, defFile.c_str());
+	if (!defFile.empty()) lstrcpy(tmpBuf, defFile.c_str());
 
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner   = hParent;
@@ -165,33 +167,33 @@ inline bool save_file(HWND hParent, const TCHAR* filterWithPipes, std::wstring& 
 	ofn.lpstrFile   = tmpBuf;
 	ofn.nMaxFile    = ARRAYSIZE(tmpBuf);
 	ofn.Flags       = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-	ofn.lpstrDefExt = L"txt"; // apparently could be anything, will just force append of combo selected extension
+	ofn.lpstrDefExt = _T("txt"); // apparently could be anything, will just force append of combo selected extension
 
-	bool ret = GetSaveFileNameW(&ofn) != 0;
+	bool ret = GetSaveFileName(&ofn) != 0;
 	if (ret) buf = tmpBuf;
 	return ret;
 }
 
 // System dialog to select where one file will be saved.
-inline bool save_file(const wnd* parent, const TCHAR* filterWithPipes, std::wstring& buf, const std::wstring& defFile) {
+inline bool save_file(const wnd* parent, const TCHAR* filterWithPipes, wl::tstring& buf, const wl::tstring& defFile) {
 	return save_file(parent->hwnd(), filterWithPipes, buf, defFile);
 }
 
 // System dialog to select one folder.
-inline bool choose_folder(HWND hParent, std::wstring& buf) {
+inline bool choose_folder(HWND hParent, wl::tstring& buf) {
 	com::lib comLib{com::lib::init::NOW};
 	//LPITEMIDLIST pidlRoot = 0;
 	//if (defFolder) SHParseDisplayName(defFolder, nullptr, &pidlRoot, 0, nullptr);
 
-	BROWSEINFOW bi{};
+	BROWSEINFO bi{};
 	bi.hwndOwner = hParent;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
 
-	PIDLIST_ABSOLUTE pidl = SHBrowseForFolderW(&bi);
+	PIDLIST_ABSOLUTE pidl = SHBrowseForFolder(&bi);
 	if (!pidl) return false; // user cancelled
 
 	TCHAR tmpbuf[MAX_PATH]{};
-	if (!SHGetPathFromIDListW(pidl, tmpbuf)) {
+	if (!SHGetPathFromIDList(pidl, tmpbuf)) {
 		throw std::runtime_error("SHGetPathFromIDList failed.");
 	}
 
@@ -200,7 +202,7 @@ inline bool choose_folder(HWND hParent, std::wstring& buf) {
 }
 
 // System dialog to select one folder.
-inline bool choose_folder(const wnd* parent, std::wstring& buf) {
+inline bool choose_folder(const wnd* parent, wl::tstring& buf) {
 	return choose_folder(parent->hwnd(), buf);
 }
 

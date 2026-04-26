@@ -55,8 +55,8 @@ public:
 
 	icon& load_from_resource(int iconId, SIZE resolution, HINSTANCE hInst = nullptr) {
 		this->destroy();
-		this->_hIcon = static_cast<HICON>(LoadImageW(hInst ? hInst : GetModuleHandleW(nullptr),
-			MAKEINTRESOURCEW(iconId), IMAGE_ICON,
+		this->_hIcon = static_cast<HICON>(LoadImage(hInst ? hInst : GetModuleHandle(nullptr),
+			MAKEINTRESOURCE(iconId), IMAGE_ICON,
 			static_cast<int>(resolution.cx), static_cast<int>(resolution.cy),
 			LR_DEFAULTCOLOR));
 		if (!this->_hIcon) {
@@ -68,9 +68,9 @@ public:
 	icon& load_from_resource(int iconId, SIZE resolution, HWND hParent) {
 		return this->load_from_resource(iconId, resolution,
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE)));
+			reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hParent, GWLP_HINSTANCE)));
 #else
-			reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE)));
+			reinterpret_cast<HINSTANCE>(GetWindowLong(hParent, GWL_HINSTANCE)));
 #endif
 	}
 
@@ -117,7 +117,7 @@ public:
 	icon& icon_to_label(HWND hStatic) noexcept {
 		// Loads an icon into a static control; the icon can be safely destroyed then.
 		// On the resource editor, change "Type" property to "Icon".
-		SendMessageW(hStatic, STM_SETIMAGE, IMAGE_ICON, reinterpret_cast<LPARAM>(this->_hIcon));
+		SendMessage(hStatic, STM_SETIMAGE, IMAGE_ICON, reinterpret_cast<LPARAM>(this->_hIcon));
 		return *this;
 	}
 
@@ -129,14 +129,14 @@ public:
 			GetIconInfo(this->_hIcon, &nfo);
 
 			if (nfo.hbmColor) {
-				int nWrittenBytes = GetObjectW(nfo.hbmColor, sizeof(bmp), &bmp);
+				int nWrittenBytes = GetObject(nfo.hbmColor, sizeof(bmp), &bmp);
 				if (nWrittenBytes > 0) {
 					sz.cx = bmp.bmWidth;
 					sz.cy = bmp.bmHeight;
 					//myinfo.nBitsPerPixel = bmp.bmBitsPixel;
 				}
 			} else if (nfo.hbmMask) {
-				int nWrittenBytes = GetObjectW(nfo.hbmMask, sizeof(bmp), &bmp);
+				int nWrittenBytes = GetObject(nfo.hbmMask, sizeof(bmp), &bmp);
 				if (nWrittenBytes > 0) {
 					sz.cx = bmp.bmWidth;
 					sz.cy = bmp.bmHeight / 2;

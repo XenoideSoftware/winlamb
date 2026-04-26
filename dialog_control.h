@@ -65,9 +65,9 @@ public:
 		}
 
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-		SetWindowLongPtrW(this->_hWnd, GWLP_ID, ctrlId); // so the control has an ID
+		SetWindowLongPtr(this->_hWnd, GWLP_ID, ctrlId); // so the control has an ID
 #else
-		SetWindowLongW(this->_hWnd, GWL_ID, ctrlId); // so the control has an ID
+		SetWindowLong(this->_hWnd, GWL_ID, ctrlId); // so the control has an ID
 #endif
 		SetWindowPos(this->_hWnd, nullptr,
 			position.x, position.y,

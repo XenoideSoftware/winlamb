@@ -47,7 +47,7 @@ public:
 				pPack->func(); // invoke user callback
 			} catch (...) {
 				_callback_pack* pCrashed = new _callback_pack{[]{}, pPack->hWnd, std::current_exception()};
-				SendMessageW(pPack->hWnd, WM_THREAD_MESSAGE, 0, reinterpret_cast<LPARAM>(pCrashed));
+				SendMessage(pPack->hWnd, WM_THREAD_MESSAGE, 0, reinterpret_cast<LPARAM>(pCrashed));
 			}
 			delete pPack;
 			_endthreadex(0); // http://www.codeproject.com/Articles/7732/A-class-to-synchronise-thread-completions/
@@ -64,7 +64,7 @@ public:
 		// the original thread of the window, thus allowing GUI updates. This avoids the
 		// user to deal with a custom WM_ message.
 		_callback_pack* pPack = new _callback_pack{std::move(func), this->_baseMsg.hwnd()};
-		SendMessageW(this->_baseMsg.hwnd(), WM_THREAD_MESSAGE, 0, reinterpret_cast<LPARAM>(pPack));
+		SendMessage(this->_baseMsg.hwnd(), WM_THREAD_MESSAGE, 0, reinterpret_cast<LPARAM>(pPack));
 	}
 
 private:

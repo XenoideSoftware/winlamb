@@ -11,6 +11,8 @@
 #include "internals/download_url.h"
 #include "insert_order_map.h"
 #include "str.h"
+#include <tchar.h>
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -24,9 +26,9 @@ private:
 	const session& _session;
 	HINTERNET      _hConnect = nullptr, _hRequest = nullptr;
 	size_t         _contentLength = 0, _totalGot = 0;
-	std::wstring   _url, _verb, _referrer;
-	insert_order_map<std::wstring, std::wstring> _requestHeaders;
-	insert_order_map<std::wstring, std::wstring> _responseHeaders;
+	wl::tstring   _url, _verb, _referrer;
+	insert_order_map<wl::tstring, wl::tstring> _requestHeaders;
+	insert_order_map<wl::tstring, wl::tstring> _responseHeaders;
 	std::function<void()> _startCallback, _progressCallback;
 
 public:
@@ -36,7 +38,7 @@ public:
 		this->abort();
 	}
 
-	download(const session& sess, std::wstring url, std::wstring verb = L"GET") :
+	download(const session& sess, wl::tstring url, wl::tstring verb = _T("GET")) :
 		_session{sess}, _url{url}, _verb{verb} { }
 
 	download& abort() noexcept {
@@ -57,7 +59,7 @@ public:
 		return *this;
 	}
 
-	download& set_referrer(const std::wstring& referrer) {
+	download& set_referrer(const wl::tstring& referrer) {
 		this->_referrer = referrer;
 		return *this;
 	}
@@ -106,8 +108,8 @@ public:
 		return this->abort(); // cleanup
 	}
 
-	const insert_order_map<std::wstring, std::wstring>& get_request_headers() const noexcept  { return this->_requestHeaders; }
-	const insert_order_map<std::wstring, std::wstring>& get_response_headers() const noexcept { return this->_responseHeaders; }
+	const insert_order_map<wl::tstring, wl::tstring>& get_request_headers() const noexcept  { return this->_requestHeaders; }
+	const insert_order_map<wl::tstring, wl::tstring>& get_response_headers() const noexcept { return this->_responseHeaders; }
 	size_t get_content_length() const noexcept   { return this->_contentLength; }
 	size_t get_total_downloaded() const noexcept { return this->_totalGot; }
 
@@ -135,7 +137,7 @@ private:
 		}
 
 		// Build the request handle.
-		std::wstring fullPath = crackedUrl.path_and_extra();
+		wl::tstring fullPath = crackedUrl.path_and_extra();
 		this->_hRequest = WinHttpOpenRequest(this->_hConnect, this->_verb.c_str(),
 			fullPath.c_str(), nullptr,
 			this->_referrer.empty() ? WINHTTP_NO_REFERER : this->_referrer.c_str(),
@@ -148,11 +150,11 @@ private:
 
 	void _contact_server() {
 		// Add the request headers to request handle.
-		std::wstring rhTmp;
+		wl::tstring rhTmp;
 		rhTmp.reserve(20);
-		for (const insert_order_map<std::wstring, std::wstring>::entry& rh : this->_requestHeaders) {
+		for (const insert_order_map<wl::tstring, wl::tstring>::entry& rh : this->_requestHeaders) {
 			rhTmp = rh.key;
-			rhTmp += L": ";
+			rhTmp += _T(": ");
 			rhTmp += rh.value;
 
 			if (!WinHttpAddRequestHeaders(this->_hRequest, rhTmp.c_str(), static_cast<ULONG>(-1L), WINHTTP_ADDREQ_FLAG_ADD)) {
@@ -177,7 +179,7 @@ private:
 		WinHttpQueryHeaders(this->_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF,
 			WINHTTP_HEADER_NAME_BY_INDEX, WINHTTP_NO_OUTPUT_BUFFER, &rehSize, WINHTTP_NO_HEADER_INDEX);
 
-		std::wstring rawReh(rehSize / sizeof(TCHAR), L'\0'); // raw response headers
+		wl::tstring rawReh(rehSize / sizeof(TCHAR), _T('\0')); // raw response headers
 
 		if (!WinHttpQueryHeaders(this->_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF,
 			WINHTTP_HEADER_NAME_BY_INDEX, &rawReh[0], &rehSize, WINHTTP_NO_HEADER_INDEX))
@@ -187,26 +189,26 @@ private:
 
 		// Parse the raw response headers into an associative array.
 		this->_responseHeaders.clear();
-		std::vector<std::wstring> lines = str::split_lines(rawReh);
+		std::vector<wl::tstring> lines = str::split_lines(rawReh);
 
-		for (const std::wstring& line : lines) {
+		for (const wl::tstring& line : lines) {
 			if (line.empty()) {
 				continue;
 			}
-			size_t colonIdx = line.find_first_of(L':');
-			if (colonIdx == std::wstring::npos) { // not a key/value pair, probably response line
-				this->_responseHeaders[L""] = line; // empty key
+			size_t colonIdx = line.find_first_of(_T(':'));
+			if (colonIdx == wl::tstring::npos) { // not a key/value pair, probably response line
+				this->_responseHeaders[_T("")] = line; // empty key
 			} else {
-				std::wstring kk = line.substr(0, colonIdx);
-				std::wstring vv = line.substr(colonIdx + 1, line.length() - (colonIdx + 1));
+				wl::tstring kk = line.substr(0, colonIdx);
+				wl::tstring vv = line.substr(colonIdx + 1, line.length() - (colonIdx + 1));
 				this->_responseHeaders[str::trim(kk)] = str::trim(vv);
 			}
 		}
 
 		// Retrieve content length, if informed by server.
-		const std::wstring* contLen = this->_responseHeaders.get_if_exists(L"Content-Length");
+		const wl::tstring* contLen = this->_responseHeaders.get_if_exists(_T("Content-Length"));
 		if (contLen && str::is_uint(*contLen)) { // yes, server informed content length
-			this->_contentLength = std::stoul(*contLen);
+			this->_contentLength = wl::stoul_t(*contLen);
 		}
 	}
 

@@ -7,6 +7,7 @@
 
 #pragma once
 #include <Windows.h>
+#include <tchar.h>
 
 namespace wl {
 
@@ -98,25 +99,25 @@ public:
 	datetime& add_day(LONGLONG d) noexcept   { return this->add_hour(d * 24); }
 
 	const TCHAR* name_month() const noexcept {
-		const TCHAR* months[] = { L"January", L"February", L"March", L"April", L"May", L"June",
-			L"July", L"August", L"September", L"October", L"November", L"December" };
+		const TCHAR* months[] = { _T("January"), _T("February"), _T("March"), _T("April"), _T("May"), _T("June"),
+			_T("July"), _T("August"), _T("September"), _T("October"), _T("November"), _T("December") };
 		return months[this->_st.wMonth - 1];
 	}
 
 	const TCHAR* name_month_short() const noexcept {
-		const TCHAR* months[] = { L"Jan", L"Feb", L"Mar", L"Apr", L"May", L"Jun",
-			L"Jul", L"Aug", L"Sep", L"Oct", L"Nov", L"Dec" };
+		const TCHAR* months[] = { _T("Jan"), _T("Feb"), _T("Mar"), _T("Apr"), _T("May"), _T("Jun"),
+			_T("Jul"), _T("Aug"), _T("Sep"), _T("Oct"), _T("Nov"), _T("Dec") };
 		return months[this->_st.wMonth - 1];
 	}
 
 	const TCHAR* name_weekday() const noexcept {
-		const TCHAR* weekday[] = { L"Sunday", L"Monday", L"Tuesday", L"Wednesday",
-			L"Thursday", L"Friday", L"Saturday" };
+		const TCHAR* weekday[] = { _T("Sunday"), _T("Monday"), _T("Tuesday"), _T("Wednesday"),
+			_T("Thursday"), _T("Friday"), _T("Saturday") };
 		return weekday[this->_st.wDayOfWeek];
 	}
 
 	const TCHAR* name_weekday_short() const noexcept {
-		const TCHAR* weekday[] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
+		const TCHAR* weekday[] = { _T("Sun"), _T("Mon"), _T("Tue"), _T("Wed"), _T("Thu"), _T("Fri"), _T("Sat") };
 		return weekday[this->_st.wDayOfWeek];
 	}
 

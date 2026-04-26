@@ -8,11 +8,13 @@
 #pragma once
 #include <string>
 #include <Windows.h>
+#include <tchar.h>
+#include "tstring.h"
 
 namespace wl {
 namespace _wli {
 
-// Public methods that allow get/set window text with std::wstring.
+// Public methods that allow get/set window text with wl::tstring.
 template<typename derivedT>
 class base_text_pubm {
 private:
@@ -24,22 +26,22 @@ public:
 
 	// Simple wrapper to SetWindowText.
 	derivedT& set_text(const TCHAR* s) noexcept {
-		SetWindowTextW(this->_hWnd, s);
+		SetWindowText(this->_hWnd, s);
 		return *static_cast<derivedT*>(this);
 	}
 
 	// Simple wrapper to SetWindowText.
-	derivedT& set_text(const std::wstring& s) noexcept {
+	derivedT& set_text(const wl::tstring& s) noexcept {
 		return this->set_text(s.c_str());
 	}
 
 	// Simple wrapper to GetWindowText.
-	std::wstring get_text() const {
-		std::wstring buf;
-		int len = GetWindowTextLengthW(this->_hWnd);
+	wl::tstring get_text() const {
+		wl::tstring buf;
+		int len = GetWindowTextLength(this->_hWnd);
 		if (len) {
-			buf.resize(len + 1, L'\0');
-			GetWindowTextW(this->_hWnd, &buf[0], len + 1);
+			buf.resize(len + 1, _T('\0'));
+			GetWindowText(this->_hWnd, &buf[0], len + 1);
 			buf.resize(len);
 		}
 		return buf;

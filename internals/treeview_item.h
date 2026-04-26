@@ -10,6 +10,7 @@
 #include <vector>
 #include <Windows.h>
 #include <CommCtrl.h>
+#include "tstring.h"
 
 namespace wl {
 namespace _wli {
@@ -59,7 +60,7 @@ public:
 
 	// Adds a new child to the item, with a given image list icon.
 	treeview_item add_child_with_icon(const TCHAR* text, int imageListIconIndex = -1) noexcept {
-		TVINSERTSTRUCTW tvi{};
+		TVINSERTSTRUCT tvi{};
 		tvi.hParent = this->_hTreeItem;
 		tvi.hInsertAfter = TVI_LAST;
 		tvi.itemex.mask = TVIF_TEXT | (imageListIconIndex == -1 ? 0 : (TVIF_IMAGE | TVIF_SELECTEDIMAGE));
@@ -72,7 +73,7 @@ public:
 	}
 
 	// Adds a new child to the item, with a given image list icon.
-	treeview_item add_child_with_icon(const std::wstring& caption, int imagelistIconIndex = -1) noexcept {
+	treeview_item add_child_with_icon(const wl::tstring& caption, int imagelistIconIndex = -1) noexcept {
 		return this->add_child_with_icon(caption.c_str(), imagelistIconIndex);
 	}
 
@@ -82,7 +83,7 @@ public:
 	}
 
 	// Adds a new child to the item.
-	treeview_item add_child(const std::wstring& caption) noexcept {
+	treeview_item add_child(const wl::tstring& caption) noexcept {
 		return this->add_child_with_icon(caption, -1);
 	}
 
@@ -96,7 +97,7 @@ public:
 			TVIS_EXPANDED) != 0;
 	}
 
-	std::wstring get_text() const {
+	wl::tstring get_text() const {
 		TCHAR tmpBuf[MAX_PATH]{}; // arbitrary length
 		TVITEMEX tvi{};
 		tvi.hItem = this->_hTreeItem;
@@ -118,7 +119,7 @@ public:
 		return *this;
 	}
 
-	treeview_item& set_text(const std::wstring& text) noexcept {
+	treeview_item& set_text(const wl::tstring& text) noexcept {
 		return this->set_text(text.c_str());
 	}
 

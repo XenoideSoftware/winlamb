@@ -11,6 +11,8 @@
 #include "internals/base_native_ctrl_pubm.h"
 #include "internals/styler.h"
 #include "wnd.h"
+#include <tchar.h>
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -65,7 +67,7 @@ public:
 		}
 
 		this->_baseNativeCtrl.create(hParent, ctrlId, nullptr,
-			pos, {width, height}, L"Edit",
+			pos, {width, height}, _T("Edit"),
 			WS_CHILD | WS_VISIBLE | styles, WS_EX_CLIENTEDGE);
 		return *this;
 	}
@@ -77,7 +79,7 @@ public:
 	}
 
 	textbox& select(selection selec) noexcept {
-		SendMessageW(this->_hWnd, EM_SETSEL, selec.start, selec.start + selec.len);
+		SendMessage(this->_hWnd, EM_SETSEL, selec.start, selec.start + selec.len);
 		return *this;
 	}
 
@@ -87,18 +89,18 @@ public:
 
 	selection get_selected() const noexcept {
 		int p0 = 0, p1 = 0;
-		SendMessageW(this->_hWnd, EM_GETSEL,
+		SendMessage(this->_hWnd, EM_GETSEL,
 			reinterpret_cast<WPARAM>(&p0), reinterpret_cast<LPARAM>(&p1));
 		return {p0, p1 - p0}; // start, length
 	}
 
 	textbox& replace_selected(const TCHAR* t) noexcept {
-		SendMessageW(this->_hWnd, EM_REPLACESEL,
+		SendMessage(this->_hWnd, EM_REPLACESEL,
 			TRUE, reinterpret_cast<LPARAM>(t));
 		return *this;
 	}
 
-	textbox& replace_selected(const std::wstring& t) noexcept {
+	textbox& replace_selected(const wl::tstring& t) noexcept {
 		return this->replace_selected(t.c_str());
 	}
 };

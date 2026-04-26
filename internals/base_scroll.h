@@ -24,7 +24,7 @@ public:
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
 		EnumChildWindows(hWnd, [](HWND hChild, LPARAM lp) noexcept -> BOOL {
 			static UINT_PTR uniqueSubclassId = 1;
-			if (GetWindowLongPtrW(hChild, GWL_STYLE) & WS_TABSTOP) {
+			if (GetWindowLongPtr(hChild, GWL_STYLE) & WS_TABSTOP) {
 				SetWindowSubclass(hChild, _scroll_proc, uniqueSubclassId++,
 					static_cast<DWORD_PTR>(lp)); // subclass every focusable control
 			}
@@ -44,7 +44,7 @@ private:
 				HWND hTopLevelParent = reinterpret_cast<HWND>(refData);
 				POINT pt = {LOWORD(lp), HIWORD(lp)};
 				ScreenToClient(hTopLevelParent, &pt); // to client coordinates relative to parent
-				SendMessageW(ChildWindowFromPoint(hTopLevelParent, pt), // window below cursor
+				SendMessage(ChildWindowFromPoint(hTopLevelParent, pt), // window below cursor
 					WM_MOUSEWHEEL,
 					MAKEWPARAM(LOWORD(wp) | 0x0800, HIWORD(wp)), // set 0x0800 bitflag and kick to window below cursor
 					lp);

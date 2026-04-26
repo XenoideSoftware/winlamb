@@ -36,39 +36,39 @@ public:
 	// Wraps GetWindowLongPtr to retrieve an ordinary window style.
 	bool has_style(DWORD styleFlags) const noexcept {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-		return (GetWindowLongPtrW(this->target.hwnd(), GWL_STYLE) & styleFlags) != 0;
+		return (GetWindowLongPtr(this->target.hwnd(), GWL_STYLE) & styleFlags) != 0;
 #else
-		return (GetWindowLongW(this->target.hwnd(), GWL_STYLE) & styleFlags) != 0;
+		return (GetWindowLong(this->target.hwnd(), GWL_STYLE) & styleFlags) != 0;
 #endif
 	}
 
 	// Wraps GetWindowLongPtr to retrieve an extended window style.
 	bool has_style_ex(DWORD styleFlags) const noexcept {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-		return (GetWindowLongPtrW(this->target.hwnd(), GWL_EXSTYLE) & styleFlags) != 0;
+		return (GetWindowLongPtr(this->target.hwnd(), GWL_EXSTYLE) & styleFlags) != 0;
 #else
-		return (GetWindowLongW(this->target.hwnd(), GWL_EXSTYLE) & styleFlags) != 0;
+		return (GetWindowLong(this->target.hwnd(), GWL_EXSTYLE) & styleFlags) != 0;
 #endif
 	}
 
 private:
 	wndT& _change_style_flags(bool isEx, bool addStyle, DWORD styleFlags) noexcept {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-		LONG_PTR curFlags = GetWindowLongPtrW(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE);
+		LONG_PTR curFlags = GetWindowLongPtr(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE);
 		if (addStyle) {
 			curFlags |= static_cast<LONG_PTR>(styleFlags);
 		} else {
 			curFlags &= ~static_cast<LONG_PTR>(styleFlags);
 		}
-		SetWindowLongPtrW(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE, curFlags);
+		SetWindowLongPtr(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE, curFlags);
 #else
-		LONG curFlags = GetWindowLongW(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE);
+		LONG curFlags = GetWindowLong(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE);
 		if (addStyle) {
 			curFlags |= static_cast<LONG>(styleFlags);
 		} else {
 			curFlags &= ~static_cast<LONG>(styleFlags);
 		}
-		SetWindowLongW(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE, curFlags);
+		SetWindowLong(this->target.hwnd(), isEx ? GWL_EXSTYLE : GWL_STYLE, curFlags);
 #endif
 		return this->target;
 	}

@@ -8,6 +8,7 @@
 #pragma once
 #include <vector>
 #include "listview_item.h"
+#include "tstring.h"
 
 namespace wl {
 namespace _wli {
@@ -36,7 +37,7 @@ public:
 	listview_item add_at_pos_with_icon(const TCHAR* caption, size_t positionIndex,
 		int imageListIconIndex) noexcept
 	{
-		LVITEMW lvi{};
+		LVITEM lvi{};
 		lvi.iItem = static_cast<int>(positionIndex == -1 ? 0x0FFFFFFF : positionIndex);
 		lvi.mask = LVIF_TEXT | (imageListIconIndex == -1 ? 0 : LVIF_IMAGE);
 		lvi.pszText = const_cast<TCHAR*>(caption);
@@ -47,7 +48,7 @@ public:
 	}
 
 	// Adds a new item to the listview, at a given position, with a given image list icon.
-	listview_item add_at_pos_with_icon(const std::wstring& caption, size_t positionIndex,
+	listview_item add_at_pos_with_icon(const wl::tstring& caption, size_t positionIndex,
 		int imageListIconIndex) noexcept
 	{
 		return this->add_at_pos_with_icon(caption.c_str(),
@@ -60,7 +61,7 @@ public:
 	}
 
 	// Adds a new item to the listview, with a given image list icon.
-	listview_item add_with_icon(const std::wstring& caption, int imageListIconIndex) noexcept {
+	listview_item add_with_icon(const wl::tstring& caption, int imageListIconIndex) noexcept {
 		return this->add_at_pos_with_icon(caption, -1, imageListIconIndex);
 	}
 
@@ -70,7 +71,7 @@ public:
 	}
 
 	// Adds a new item to the listview, at a given position.
-	listview_item add_at_pos(const std::wstring& caption, size_t positionIndex) noexcept {
+	listview_item add_at_pos(const wl::tstring& caption, size_t positionIndex) noexcept {
 		return this->add_at_pos_with_icon(caption, positionIndex, -1);
 	}
 
@@ -80,7 +81,7 @@ public:
 	}
 
 	// Adds a new item to the listview.
-	listview_item add(const std::wstring& caption) noexcept {
+	listview_item add(const wl::tstring& caption) noexcept {
 		return this->add_at_pos_with_icon(caption, -1, -1);
 	}
 
@@ -103,7 +104,7 @@ public:
 
 	// Returns the first item which caption matches the given string, case-insensitive, or listview_item::npos if none is found.
 	listview_item find(const TCHAR* caption) const noexcept {
-		LVFINDINFOW lfi{};
+		LVFINDINFO lfi{};
 		lfi.flags = LVFI_STRING; // search is case-insensitive
 		lfi.psz = caption;
 		return {static_cast<size_t>(ListView_FindItem(this->_hList, -1, &lfi)),
@@ -111,7 +112,7 @@ public:
 	}
 
 	// Returns the first item which caption matches the given string, case-insensitive, or listview_item::npos if none is found.
-	listview_item find(const std::wstring& caption) const noexcept {
+	listview_item find(const wl::tstring& caption) const noexcept {
 		return this->find(caption.c_str());
 	}
 
@@ -121,7 +122,7 @@ public:
 	}
 
 	// Returns true if there is an item which caption matches the given string, case-insensitive.
-	bool exists(const std::wstring& caption) const noexcept {
+	bool exists(const wl::tstring& caption) const noexcept {
 		return this->exists(caption.c_str());
 	}
 
@@ -153,12 +154,12 @@ public:
 
 	// Removes all selected items in the listview.
 	listview_item_collection& remove_selected() noexcept {
-		SendMessageW(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
+		SendMessage(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
 		int i = -1;
 		while ((i = ListView_GetNextItem(this->_hList, -1, LVNI_SELECTED)) != -1) {
 			ListView_DeleteItem(this->_hList, i);
 		}
-		SendMessageW(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
+		SendMessage(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
 		return *this;
 	}
 
@@ -214,10 +215,10 @@ public:
 	}
 
 	// Return the texts, from the given column, from the given items.
-	std::vector<std::wstring> get_texts(const std::vector<listview_item>& itemsToGet,
+	std::vector<wl::tstring> get_texts(const std::vector<listview_item>& itemsToGet,
 		size_t columnIndex = 0) const
 	{
-		std::vector<std::wstring> texts;
+		std::vector<wl::tstring> texts;
 		texts.reserve(itemsToGet.size());
 		for (const listview_item& oneItem : itemsToGet) {
 			texts.emplace_back(oneItem.get_text(columnIndex));

@@ -22,16 +22,16 @@ public:
 	int run_loop(HWND hWnd, HACCEL hAccel = nullptr) const {
 		MSG msg{};
 		BOOL ret = FALSE;
-		while ((ret = GetMessageW(&msg, nullptr, 0, 0)) != 0) {
+		while ((ret = GetMessage(&msg, nullptr, 0, 0)) != 0) {
 			if (ret == -1) {
 				throw std::system_error(GetLastError(), std::system_category(),
 					"GetMessage failed");
 			}
 			if (this->_is_modeless_msg(&msg) || // http://www.winprog.org/tutorial/modeless_dialogs.html
-				(hAccel && TranslateAcceleratorW(hWnd, hAccel, &msg)) ||
-				IsDialogMessageW(hWnd, &msg) ) continue;
+				(hAccel && TranslateAccelerator(hWnd, hAccel, &msg)) ||
+				IsDialogMessage(hWnd, &msg) ) continue;
 			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
+			DispatchMessage(&msg);
 		}
 		return static_cast<int>(msg.wParam); // this can be used as program return value
 	}
@@ -55,7 +55,7 @@ private:
 	bool _is_modeless_msg(MSG* pMsg) const noexcept {
 		for (const HWND hModl : this->_modelessChildren) {
 			if (!hModl || !IsWindow(hModl)) continue; // skip invalid HWND
-			if (IsDialogMessageW(hModl, pMsg)) return true;
+			if (IsDialogMessage(hModl, pMsg)) return true;
 		}
 		return false;
 	}

@@ -59,7 +59,7 @@ public:
 	}
 
 	progressbar& set_range(int minVal, int maxVal) noexcept {
-		SendMessageW(this->_hWnd, PBM_SETRANGE, 0, MAKELPARAM(minVal, maxVal));
+		SendMessage(this->_hWnd, PBM_SETRANGE, 0, MAKELPARAM(minVal, maxVal));
 		return *this;
 	}
 
@@ -68,7 +68,7 @@ public:
 	}
 
 	progressbar& set_pos(int pos) noexcept {
-		SendMessageW(this->_hWnd, PBM_SETPOS, pos, 0);
+		SendMessage(this->_hWnd, PBM_SETPOS, pos, 0);
 		return *this;
 	}
 
@@ -84,7 +84,7 @@ public:
 		if (isWaiting) {
 			this->style.set_style(true, PBS_MARQUEE); // set this on resource editor won't work
 		}
-		SendMessageW(this->_hWnd, PBM_SETMARQUEE, static_cast<WPARAM>(isWaiting), 0);
+		SendMessage(this->_hWnd, PBM_SETMARQUEE, static_cast<WPARAM>(isWaiting), 0);
 
 		if (!isWaiting) { // http://stackoverflow.com/a/23689663
 			this->style.set_style(false, PBS_MARQUEE);
@@ -93,7 +93,7 @@ public:
 	}
 
 	int get_pos() noexcept {
-		return static_cast<int>(SendMessageW(this->_hWnd, PBM_GETPOS, 0, 0));
+		return static_cast<int>(SendMessage(this->_hWnd, PBM_GETPOS, 0, 0));
 	}
 };
 

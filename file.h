@@ -11,6 +11,8 @@
 #include <vector>
 #include "datetime.h"
 #include <Shellapi.h>
+#include <tchar.h>
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -78,7 +80,7 @@ public:
 	}
 
 private:
-	file& _raw_open(const std::wstring& filePath, DWORD desiredAccess,
+	file& _raw_open(const wl::tstring& filePath, DWORD desiredAccess,
 		DWORD shareMode, DWORD creationDisposition)
 	{
 		if (filePath.empty()) {
@@ -88,7 +90,7 @@ private:
 		this->close();
 		bool isReadWrite = (desiredAccess & GENERIC_WRITE) != 0;
 
-		this->_hFile = CreateFileW(filePath.c_str(), desiredAccess, shareMode,
+		this->_hFile = CreateFile(filePath.c_str(), desiredAccess, shareMode,
 			nullptr, creationDisposition, 0, nullptr);
 		if (this->_hFile == INVALID_HANDLE_VALUE) {
 			this->_hFile = nullptr;
@@ -116,7 +118,7 @@ public:
 	}
 
 	// Opens a file, throwing an exception if it doesn't exist.
-	file& open_existing(const std::wstring& filePath, access accessType) {
+	file& open_existing(const wl::tstring& filePath, access accessType) {
 		return this->open_existing(filePath.c_str(), accessType);
 	}
 
@@ -126,7 +128,7 @@ public:
 	}
 
 	// Opens a file as read/write, creates if it doesn't exist.
-	file& open_or_create(const std::wstring& filePath) {
+	file& open_or_create(const wl::tstring& filePath) {
 		return this->open_or_create(filePath.c_str());
 	}
 
@@ -248,7 +250,7 @@ public:
 		}
 
 		// Reads all file content at once into a buffer.
-		static void read_to_buffer(const std::wstring& filePath, std::vector<BYTE>& buf) {
+		static void read_to_buffer(const wl::tstring& filePath, std::vector<BYTE>& buf) {
 			read_to_buffer(filePath.c_str(), buf);
 		}
 
@@ -260,7 +262,7 @@ public:
 		}
 
 		// Retrieves all file content at once.
-		static std::vector<BYTE> read(const std::wstring& filePath) {
+		static std::vector<BYTE> read(const wl::tstring& filePath) {
 			return read(filePath.c_str());
 		}
 
@@ -273,7 +275,7 @@ public:
 		}
 
 		// Writes all content to file at once.
-		static void write(const std::wstring& filePath, const BYTE* pData, size_t sz) {
+		static void write(const wl::tstring& filePath, const BYTE* pData, size_t sz) {
 			write(filePath.c_str(), pData, sz);
 		}
 
@@ -283,7 +285,7 @@ public:
 		}
 
 		// Writes all content to file at once.
-		static void write(const std::wstring& filePath, const std::vector<BYTE>& data) {
+		static void write(const wl::tstring& filePath, const std::vector<BYTE>& data) {
 			write(filePath.c_str(), &data[0], data.size());
 		}
 
@@ -295,7 +297,7 @@ public:
 		}
 
 		// Retrieves the file size in bytes.
-		static size_t get_size(const std::wstring& filePath) {
+		static size_t get_size(const wl::tstring& filePath) {
 			return get_size(filePath.c_str());
 		}
 
@@ -307,58 +309,58 @@ public:
 		}
 
 		// Gets creation, last access and last write dates.
-		static dates get_dates(const std::wstring& filePath) {
+		static dates get_dates(const wl::tstring& filePath) {
 			return get_dates(filePath.c_str());
 		}
 
 		// Does the file exist on disk?
 		static bool exists(const TCHAR* fileOrFolder) noexcept {
-			return GetFileAttributesW(fileOrFolder) != INVALID_FILE_ATTRIBUTES;
+			return GetFileAttributes(fileOrFolder) != INVALID_FILE_ATTRIBUTES;
 		}
 
 		// Does the file exist on disk?
-		static bool exists(const std::wstring& fileOrFolder) noexcept {
+		static bool exists(const wl::tstring& fileOrFolder) noexcept {
 			return exists(fileOrFolder.c_str());
 		}
 
 		// Is this path a directory?
 		static bool is_dir(const TCHAR* thePath) noexcept {
-			return (GetFileAttributesW(thePath) & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			return (GetFileAttributes(thePath) & FILE_ATTRIBUTE_DIRECTORY) != 0;
 		}
 
 		// Is this path a directory?
-		static bool is_dir(const std::wstring& thePath) noexcept {
+		static bool is_dir(const wl::tstring& thePath) noexcept {
 			return is_dir(thePath.c_str());
 		}
 
 		// Is the file hidden?
 		static bool is_hidden(const TCHAR* thePath) noexcept {
-			return (GetFileAttributesW(thePath) & FILE_ATTRIBUTE_HIDDEN) != 0;
+			return (GetFileAttributes(thePath) & FILE_ATTRIBUTE_HIDDEN) != 0;
 		}
 
 		// Is the file hidden?
-		static bool is_hidden(const std::wstring& thePath) noexcept {
+		static bool is_hidden(const wl::tstring& thePath) noexcept {
 			return is_hidden(thePath.c_str());
 		}
 
 		// Deletes a file, or a directory recursively.
-		static void del(const std::wstring& fileOrFolder) {
+		static void del(const wl::tstring& fileOrFolder) {
 			if (is_dir(fileOrFolder)) {
 				// http://stackoverflow.com/q/1468774/6923555
 				TCHAR szDir[MAX_PATH + 1]{}; // +1 for the double null terminate
-				lstrcpyW(szDir, fileOrFolder.c_str());
+				lstrcpy(szDir, fileOrFolder.c_str());
 
-				SHFILEOPSTRUCTW fos{};
+				SHFILEOPSTRUCT fos{};
 				fos.wFunc  = FO_DELETE;
 				fos.pFrom  = szDir;
 				fos.fFlags = FOF_NO_UI;
 
-				if (SHFileOperationW(&fos)) {
+				if (SHFileOperation(&fos)) {
 					throw std::system_error(ERROR_INVALID_FUNCTION, std::system_category(), // arbitrary error code
 						"SHFileOperation failed to recursively delete directory, can't specify error");
 				}
 			} else {
-				if (!DeleteFileW(fileOrFolder.c_str())) {
+				if (!DeleteFile(fileOrFolder.c_str())) {
 					throw std::system_error(GetLastError(), std::system_category(),
 						"DeleteFile failed");
 				}
@@ -367,23 +369,23 @@ public:
 
 		// Creates a new directory.
 		static void create_dir(const TCHAR* thePath) {
-			if (!CreateDirectoryW(thePath, nullptr)) {
+			if (!CreateDirectory(thePath, nullptr)) {
 				throw std::system_error(GetLastError(), std::system_category(),
 					"CreateDirectory failed");
 			}
 		}
 
 		// Creates a new directory.
-		static void create_dir(const std::wstring& thePath) {
+		static void create_dir(const wl::tstring& thePath) {
 			create_dir(thePath.c_str());
 		}
 
 		// List files within a directory according to a pattern, like "C:\\files\\*.txt". "*" will bring all.
-		static std::vector<std::wstring> list_dir(const std::wstring& pathAndPattern) {
-			std::vector<std::wstring> files;
+		static std::vector<wl::tstring> list_dir(const wl::tstring& pathAndPattern) {
+			std::vector<wl::tstring> files;
 
 			WIN32_FIND_DATA wfd{};
-			HANDLE hFind = FindFirstFileW(pathAndPattern.c_str(), &wfd);
+			HANDLE hFind = FindFirstFile(pathAndPattern.c_str(), &wfd);
 			if (hFind == INVALID_HANDLE_VALUE) {
 				DWORD err = GetLastError();
 				if (err == ERROR_FILE_NOT_FOUND) {
@@ -394,26 +396,26 @@ public:
 				}
 			}
 
-			std::wstring pathPat = pathAndPattern.substr(0,
-				pathAndPattern.find_last_of(L'\\')); // no trailing backslash
+			wl::tstring pathPat = pathAndPattern.substr(0,
+				pathAndPattern.find_last_of(_T('\\'))); // no trailing backslash
 			do {
 				if (*wfd.cFileName
-					&& lstrcmpiW(wfd.cFileName, L".") // do not add current and parent paths
-					&& lstrcmpiW(wfd.cFileName, L".."))
+					&& lstrcmpi(wfd.cFileName, _T(".")) // do not add current and parent paths
+					&& lstrcmpi(wfd.cFileName, _T("..")))
 				{
 					files.emplace_back(pathPat);
-					files.back().append(L"\\").append(wfd.cFileName);
+					files.back().append(_T("\\")).append(wfd.cFileName);
 				}
-			} while (FindNextFileW(hFind, &wfd));
+			} while (FindNextFile(hFind, &wfd));
 
 			FindClose(hFind);
 			return files;
 		}
 
 		// List files within a directory according to a pattern, like "C:\\files\\*.txt".
-		static std::vector<std::wstring> list_dir(const std::wstring& dirPath, const std::wstring& pattern) {
-			std::wstring pathAndPattern = dirPath;
-			if (pathAndPattern.back() != L'\\') pathAndPattern.append(L"\\");
+		static std::vector<wl::tstring> list_dir(const wl::tstring& dirPath, const wl::tstring& pattern) {
+			wl::tstring pathAndPattern = dirPath;
+			if (pathAndPattern.back() != _T('\\')) pathAndPattern.append(_T("\\"));
 			pathAndPattern.append(pattern);
 			return list_dir(pathAndPattern);
 		}

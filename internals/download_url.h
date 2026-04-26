@@ -10,6 +10,7 @@
 #include <system_error>
 #include <Windows.h>
 #include <winhttp.h>
+#include "tstring.h"
 #pragma comment(lib, "Winhttp.lib")
 
 namespace wl {
@@ -42,7 +43,7 @@ public:
 		return *this;
 	}
 
-	download_url& crack(const std::wstring& address) {
+	download_url& crack(const wl::tstring& address) {
 		return this->crack(address.c_str());
 	}
 
@@ -55,8 +56,8 @@ public:
 	int            port() const noexcept     { return this->_uc.nPort; }
 	bool           is_https() const noexcept { return this->_uc.nScheme == INTERNET_SCHEME_HTTPS; }
 
-	std::wstring path_and_extra() const {
-		std::wstring ret = this->_path;
+	wl::tstring path_and_extra() const {
+		wl::tstring ret = this->_path;
 		ret.append(this->_extra);
 		return ret;
 	}

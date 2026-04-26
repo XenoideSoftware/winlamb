@@ -12,6 +12,8 @@
 #include "internals/styler.h"
 #include "icon.h"
 #include "wnd.h"
+#include <tchar.h>
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -60,9 +62,9 @@ public:
 		}
 
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-		DWORD parentStyle = static_cast<DWORD>(GetWindowLongPtrW(hParent, GWL_STYLE));
+		DWORD parentStyle = static_cast<DWORD>(GetWindowLongPtr(hParent, GWL_STYLE));
 #else
-		DWORD parentStyle = static_cast<DWORD>(GetWindowLongW(hParent, GWL_STYLE));
+		DWORD parentStyle = static_cast<DWORD>(GetWindowLong(hParent, GWL_STYLE));
 #endif
 		bool canStretch = (parentStyle & WS_MAXIMIZEBOX) != 0 ||
 			(parentStyle & WS_SIZEBOX) != 0;
@@ -79,7 +81,7 @@ public:
 	void adjust(const params& p) noexcept {
 		if (p.wParam != SIZE_MINIMIZED && this->_hWnd) {
 			int cx = LOWORD(p.lParam); // available width
-			SendMessageW(this->_hWnd, WM_SIZE, 0, 0); // tell statusbar to fit parent
+			SendMessage(this->_hWnd, WM_SIZE, 0, 0); // tell statusbar to fit parent
 
 			// Find the space to be divided among variable-width parts,
 			// and total weight of variable-width parts.
@@ -101,7 +103,7 @@ public:
 					this->_parts[i].sizePixels :
 					static_cast<int>( (cxVariable / totalWeight) * this->_parts[i].resizeWeight );
 			}
-			SendMessageW(this->_hWnd, SB_SETPARTS, this->_rightEdges.size(),
+			SendMessage(this->_hWnd, SB_SETPARTS, this->_rightEdges.size(),
 				reinterpret_cast<LPARAM>(&this->_rightEdges[0]));
 		}
 	}
@@ -129,21 +131,21 @@ public:
 	}
 
 	statusbar& set_text(const TCHAR* text, size_t iPart) noexcept {
-		SendMessageW(this->_hWnd, SB_SETTEXT, MAKEWPARAM(MAKEWORD(iPart, 0), 0),
+		SendMessage(this->_hWnd, SB_SETTEXT, MAKEWPARAM(MAKEWORD(iPart, 0), 0),
 			reinterpret_cast<LPARAM>(text));
 		return *this;
 	}
 
-	statusbar& set_text(const std::wstring& text, size_t iPart) noexcept {
+	statusbar& set_text(const wl::tstring& text, size_t iPart) noexcept {
 		return this->set_text(text.c_str(), iPart);
 	}
 
-	std::wstring get_text(size_t iPart) const {
-		std::wstring buf;
-		int len = LOWORD(SendMessageW(this->_hWnd, SB_GETTEXTLENGTH, iPart, 0));
+	wl::tstring get_text(size_t iPart) const {
+		wl::tstring buf;
+		int len = LOWORD(SendMessage(this->_hWnd, SB_GETTEXTLENGTH, iPart, 0));
 		if (len) {
-			buf.resize(len + 1, L'\0');
-			SendMessageW(this->_hWnd, SB_GETTEXT, iPart, reinterpret_cast<LPARAM>(&buf[0]));
+			buf.resize(len + 1, _T('\0'));
+			SendMessage(this->_hWnd, SB_GETTEXT, iPart, reinterpret_cast<LPARAM>(&buf[0]));
 			buf.resize(len);
 		}
 		return buf;
@@ -151,7 +153,7 @@ public:
 
 	statusbar& set_icon(HICON hIcon, size_t iPart) noexcept {
 		// Pass nullptr to clear icon.
-		SendMessageW(this->_hWnd, SB_SETICON, iPart, reinterpret_cast<LPARAM>(hIcon));
+		SendMessage(this->_hWnd, SB_SETICON, iPart, reinterpret_cast<LPARAM>(hIcon));
 		return *this;
 	}
 

@@ -10,6 +10,7 @@
 #include <vector>
 #include "internals/gdi_objects.h"
 #include "wnd.h"
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -128,56 +129,56 @@ public:
 	// Writes a character string at the specified location, using the
 	// currently selected font, background color, and text color.
 	dc& text_out(int x, int y, const TCHAR* text,
-		size_t numChars = std::wstring::npos) noexcept
+		size_t numChars = wl::tstring::npos) noexcept
 	{
-		TextOutW(this->_hDC, x, y, text,
-			(numChars == std::wstring::npos) ? lstrlenW(text) : static_cast<int>(numChars));
+		TextOut(this->_hDC, x, y, text,
+			(numChars == wl::tstring::npos) ? lstrlen(text) : static_cast<int>(numChars));
 		return *this;
 	}
 
 	// Writes a character string at the specified location, using the
 	// currently selected font, background color, and text color.
-	dc& text_out(int x, int y, const std::wstring& text,
-		size_t numChars = std::wstring::npos) noexcept
+	dc& text_out(int x, int y, const wl::tstring& text,
+		size_t numChars = wl::tstring::npos) noexcept
 	{
 		return this->text_out(x, y, text.c_str(),
-			(numChars == std::wstring::npos) ? text.length() : numChars);
+			(numChars == wl::tstring::npos) ? text.length() : numChars);
 	}
 
 	// Draws formatted text in the specified rectangle. It formats the text according to the
 	// specified method (expanding tabs, justifying characters, breaking lines, and so forth).
 	dc& draw_text(int x, int y, int cx, int cy, const TCHAR* text,
-		UINT fmtFlags = 0, size_t numChars = std::wstring::npos) noexcept
+		UINT fmtFlags = 0, size_t numChars = wl::tstring::npos) noexcept
 	{
 		RECT rc{x, y, x + cx, y + cy};
-		DrawTextW(this->_hDC, text,
-			(numChars == std::wstring::npos) ? lstrlenW(text) : static_cast<int>(numChars),
+		DrawText(this->_hDC, text,
+			(numChars == wl::tstring::npos) ? lstrlen(text) : static_cast<int>(numChars),
 			&rc, fmtFlags); // DT_LEFT|DT_TOP is zero
 		return *this;
 	}
 
 	// Draws formatted text in the specified rectangle. It formats the text according to the
 	// specified method (expanding tabs, justifying characters, breaking lines, and so forth).
-	dc& draw_text(int x, int y, int cx, int cy, const std::wstring& text,
-		UINT fmtFlags = 0, size_t numChars = std::wstring::npos) noexcept
+	dc& draw_text(int x, int y, int cx, int cy, const wl::tstring& text,
+		UINT fmtFlags = 0, size_t numChars = wl::tstring::npos) noexcept
 	{
 		return this->draw_text(x, y, cx, cy, text.c_str(), fmtFlags,
-			(numChars == std::wstring::npos) ? text.length() : numChars);
+			(numChars == wl::tstring::npos) ? text.length() : numChars);
 	}
 
 	// Gets box size according to GetTextExtentPoint32().
-	SIZE get_text_extent(const TCHAR* text, size_t numChars = std::wstring::npos) const noexcept {
+	SIZE get_text_extent(const TCHAR* text, size_t numChars = wl::tstring::npos) const noexcept {
 		SIZE sz{};
-		GetTextExtentPoint32W(this->_hDC, text,
-			(numChars == std::wstring::npos) ? lstrlenW(text) : static_cast<int>(numChars),
+		GetTextExtentPoint32(this->_hDC, text,
+			(numChars == wl::tstring::npos) ? lstrlen(text) : static_cast<int>(numChars),
 			&sz);
 		return sz;
 	}
 
 	// Gets box size according to GetTextExtentPoint32().
-	SIZE get_text_extent(const std::wstring& text, size_t numChars = std::wstring::npos) const noexcept {
+	SIZE get_text_extent(const wl::tstring& text, size_t numChars = wl::tstring::npos) const noexcept {
 		return this->get_text_extent(text.c_str(),
-			(numChars == std::wstring::npos) ? text.length() : numChars);
+			(numChars == wl::tstring::npos) ? text.length() : numChars);
 	}
 
 	// Fills a rectangle by using the specified brush. This function includes the left and top
@@ -291,15 +292,15 @@ public:
 	// Gets the color of the current background brush.
 	COLORREF get_bk_brush_color() const noexcept {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-		ULONG_PTR hbrBg = GetClassLongPtrW(this->_hWnd, GCLP_HBRBACKGROUND);
+		ULONG_PTR hbrBg = GetClassLongPtr(this->_hWnd, GCLP_HBRBACKGROUND);
 #else
-		DWORD hbrBg = GetClassLongW(this->_hWnd, GCL_HBRBACKGROUND);
+		DWORD hbrBg = GetClassLong(this->_hWnd, GCL_HBRBACKGROUND);
 #endif
 		if (hbrBg > 100) {
 			// The hbrBackground is a brush handle, not a system color constant.
 			// This 100 value is arbitrary, based on system color constants like COLOR_BTNFACE.
 			LOGBRUSH logBrush{};
-			GetObjectW(reinterpret_cast<HBRUSH>(hbrBg), sizeof(LOGBRUSH), &logBrush);
+			GetObject(reinterpret_cast<HBRUSH>(hbrBg), sizeof(LOGBRUSH), &logBrush);
 			return logBrush.lbColor;
 		}
 		return GetSysColor(static_cast<int>(hbrBg - 1));
@@ -315,7 +316,7 @@ private:
 public:
 	~dc_painter_buffered() {
 		BITMAP bm{}; // http://www.ureader.com/msg/14721900.aspx
-		GetObjectW(this->_hBmp, sizeof(bm), &bm);
+		GetObject(this->_hBmp, sizeof(bm), &bm);
 		BitBlt(this->ps().hdc, 0, 0, bm.bmWidth, bm.bmHeight,
 			this->_hDC, 0, 0, SRCCOPY);
 		DeleteObject(SelectObject(this->_hDC, this->_hBmpOld));
@@ -335,10 +336,10 @@ public:
 		RECT rcClient = {0, 0, this->size().cx, this->size().cy};
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
 		FillRect(this->_hDC, &rcClient,
-			reinterpret_cast<HBRUSH>(GetClassLongPtrW(this->hwnd(), GCLP_HBRBACKGROUND)) );
+			reinterpret_cast<HBRUSH>(GetClassLongPtr(this->hwnd(), GCLP_HBRBACKGROUND)) );
 #else
 		FillRect(this->_hDC, &rcClient,
-			reinterpret_cast<HBRUSH>(GetClassLongW(this->hwnd(), GCL_HBRBACKGROUND)) );
+			reinterpret_cast<HBRUSH>(GetClassLong(this->hwnd(), GCL_HBRBACKGROUND)) );
 #endif
 	}
 

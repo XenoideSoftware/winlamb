@@ -11,6 +11,7 @@
 #include "internals/base_text_pubm.h"
 #include "internals/styler.h"
 #include "wnd.h"
+#include <tchar.h>
 
 namespace wl {
 
@@ -40,7 +41,7 @@ public:
 		const TCHAR* caption, POINT pos, SIZE size)
 	{
 		this->_baseNativeCtrl.create(hParent, ctrlId, caption, pos, size,
-			L"Button", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX);
+			_T("Button"), WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX);
 		return *this;
 	}
 
@@ -51,18 +52,18 @@ public:
 	}
 
 	bool is_checked() const noexcept {
-		return SendMessageW(this->_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED;
+		return SendMessage(this->_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED;
 	}
 
 	checkbox& set_check(bool checked) noexcept {
-		SendMessageW(this->_hWnd, BM_SETCHECK,
+		SendMessage(this->_hWnd, BM_SETCHECK,
 			checked ? BST_CHECKED : BST_UNCHECKED, 0);
 		return *this;
 	}
 
 	checkbox& set_check_and_trigger(bool checked) noexcept {
 		this->set_check(checked);
-		SendMessageW(GetParent(this->_hWnd), WM_COMMAND,
+		SendMessage(GetParent(this->_hWnd), WM_COMMAND,
 			MAKEWPARAM(GetDlgCtrlID(this->_hWnd), 0),
 			reinterpret_cast<LPARAM>(this->_hWnd) ); // emulate user click
 		return *this;

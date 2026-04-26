@@ -58,7 +58,7 @@ public:
 
 	font& create(const LOGFONT& lf) {
 		this->destroy();
-		this->_hFont = CreateFontIndirectW(&lf);
+		this->_hFont = CreateFontIndirect(&lf);
 		if (!this->_hFont) {
 			throw std::system_error(GetLastError(), std::system_category(),
 				"CreateFontIndirect failed");
@@ -69,7 +69,7 @@ public:
 	font& create(const TCHAR* fontName, BYTE size, deco style = deco::NONE) {
 		this->destroy();
 		LOGFONT lf{};
-		lstrcpyW(lf.lfFaceName, fontName);
+		lstrcpy(lf.lfFaceName, fontName);
 		lf.lfHeight = -(size + 3);
 
 		auto hasDeco = [=](deco yourDeco) noexcept -> BOOL {
@@ -87,7 +87,7 @@ public:
 
 	// Sets the font on the given control.
 	void set_on(wnd& control) const noexcept {
-		SendMessageW(control.hwnd(), WM_SETFONT,
+		SendMessage(control.hwnd(), WM_SETFONT,
 			reinterpret_cast<WPARAM>(_hFont), TRUE);
 	}
 
@@ -105,7 +105,7 @@ public:
 		if (!_wli::IsWindowsVistaOrGreater()) {
 			ncm.cbSize -= sizeof(ncm.iBorderWidth);
 		}
-		SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
+		SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
 		return this->create(ncm.lfMenuFont); // Tahoma/Segoe
 	}
 
@@ -120,11 +120,11 @@ public:
 			static font oneFont; // keep one single font instance for all windows
 			if (!oneFont._hFont) oneFont.create_ui();
 
-			SendMessageW(hParent, WM_SETFONT,
+			SendMessage(hParent, WM_SETFONT,
 				reinterpret_cast<WPARAM>(oneFont._hFont),
 				MAKELPARAM(FALSE, 0));
 			EnumChildWindows(hParent, [](HWND hWnd, LPARAM lp) noexcept -> BOOL {
-				SendMessageW(hWnd, WM_SETFONT,
+				SendMessage(hWnd, WM_SETFONT,
 					reinterpret_cast<WPARAM>(reinterpret_cast<HFONT>(lp)),
 					MAKELPARAM(FALSE, 0)); // will run on each child
 				return TRUE;
@@ -140,7 +140,7 @@ public:
 				throw std::system_error(GetLastError(), std::system_category(),
 					"GetDC failed when checking if font exists");
 			}
-			EnumFontFamiliesW(hdc, fontName,
+			EnumFontFamilies(hdc, fontName,
 				[](const LOGFONT* lpelf, const TEXTMETRIC* lpntm, DWORD fontType, LPARAM lp) noexcept -> int {
 					bool* pIsInstalled = reinterpret_cast<bool*>(lp);
 					*pIsInstalled = true; // if we're here, font does exist

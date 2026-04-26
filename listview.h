@@ -83,7 +83,7 @@ public:
 					{this->_hWnd, static_cast<WORD>(this->ctrl_id()), LVN_KEYDOWN},
 					VK_RETURN, 0
 				};
-				SendMessageW(GetAncestor(this->_hWnd, GA_PARENT),
+				SendMessage(GetAncestor(this->_hWnd, GA_PARENT),
 					WM_NOTIFY, reinterpret_cast<WPARAM>(this->_hWnd),
 					reinterpret_cast<LPARAM>(&nmlvkd));
 				return DLGC_WANTALLKEYS;
@@ -103,7 +103,7 @@ public:
 	listview& operator=(listview&&) = default; // movable only
 
 	listview& create(HWND hParent, int ctrlId, POINT pos, SIZE size, DWORD styles, DWORD exStyles) {
-		this->_baseNativeCtrl.create(hParent, ctrlId, nullptr, pos, size, WC_LISTVIEWW, styles, exStyles);
+		this->_baseNativeCtrl.create(hParent, ctrlId, nullptr, pos, size, WC_LISTVIEW, styles, exStyles);
 		return *this;
 	}
 
@@ -142,7 +142,7 @@ public:
 	// Sends a WM_SETREDRAW message to allow changes in that window to be redrawn
 	// or to prevent changes in that window from being redrawn.
 	listview& set_redraw(bool doRedraw) noexcept {
-		SendMessageW(this->_hWnd, WM_SETREDRAW,
+		SendMessage(this->_hWnd, WM_SETREDRAW,
 			static_cast<WPARAM>(static_cast<BOOL>(doRedraw)), 0);
 		return *this;
 	}

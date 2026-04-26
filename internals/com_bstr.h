@@ -9,6 +9,7 @@
 #include <string>
 #include <Windows.h>
 #include <OleAuto.h>
+#include "tstring.h"
 
 namespace wl {
 
@@ -27,8 +28,8 @@ public:
 
 	bstr() = default;
 	bstr(bstr&& other) noexcept          : _bstrObj{other._bstrObj} { other._bstrObj = nullptr; }
-	bstr(const TCHAR* s) noexcept      : _bstrObj{SysAllocString(s)} { }
-	bstr(const std::wstring& s) noexcept : bstr(s.c_str()) { }
+	bstr(const TCHAR* s) noexcept        : _bstrObj{SysAllocString(wl::to_wstring(s).c_str())} { }
+	bstr(const wl::tstring& s) noexcept : bstr(s.c_str()) { }
 
 	operator const BSTR&() const noexcept  { return this->_bstrObj; }
 	const BSTR* operator&() const noexcept { return &this->_bstrObj; }
@@ -42,11 +43,11 @@ public:
 	
 	bstr& operator=(const TCHAR* s) noexcept {
 		this->free();
-		this->_bstrObj = SysAllocString(s);
+		this->_bstrObj = SysAllocString(wl::to_wstring(s).c_str());
 		return *this;
 	}
 
-	bstr& operator=(const std::wstring& s) noexcept {
+	bstr& operator=(const wl::tstring& s) noexcept {
 		return this->operator=(s.c_str());
 	}
 
@@ -58,8 +59,9 @@ public:
 		return *this;
 	}
 
-	const TCHAR* c_str() const noexcept {
-		return static_cast<TCHAR*>(this->_bstrObj);
+	// BSTR is always wide (OLECHAR == wchar_t), regardless of _UNICODE.
+	const wchar_t* c_str() const noexcept {
+		return this->_bstrObj;
 	}
 };
 

@@ -9,6 +9,8 @@
 #include <string>
 #include <Windows.h>
 #include <CommCtrl.h>
+#include <tchar.h>
+#include "tstring.h"
 
 namespace wl {
 namespace _wli {
@@ -32,11 +34,11 @@ public:
 	}
 
 	void swap_with(size_t itemIndex) {
-		SendMessageW(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
+		SendMessage(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
 
 		listview_item newItem{itemIndex, this->_hList}; // make a copy
 		size_t numCols = Header_GetItemCount(ListView_GetHeader(this->_hList));
-		std::wstring tmpStr;
+		wl::tstring tmpStr;
 		for (size_t c = 0; c < numCols; ++c) { // swap texts of all columns
 			tmpStr = this->get_text(c);
 			this->set_text(newItem.get_text(c), c);
@@ -51,7 +53,7 @@ public:
 		this->set_icon_index(newItem.get_icon_index());
 		newItem.set_icon_index(oldi);
 
-		SendMessageW(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
+		SendMessage(this->_hList, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
 	}
 
 	listview_item& ensure_visible() noexcept {
@@ -116,9 +118,9 @@ public:
 		return rc;
 	}
 
-	std::wstring get_text(size_t columnIndex = 0) const {
+	wl::tstring get_text(size_t columnIndex = 0) const {
 		// http://forums.codeguru.com/showthread.php?351972-Getting-listView-item-text-length
-		LVITEMW lvi{};
+		LVITEM lvi{};
 		lvi.iItem = static_cast<int>(this->_index);
 		lvi.iSubItem = static_cast<int>(columnIndex);
 
@@ -126,7 +128,7 @@ public:
 		// was previously allocated with a value bigger than our 1st step,
 		// this will speed up the size checks.
 
-		std::wstring buf(64, L'\0'); // speed-up 1st allocation
+		wl::tstring buf(64, _T('\0')); // speed-up 1st allocation
 		int baseBufLen = 0;
 		int charsWrittenWithoutNull = 0;
 		do {
@@ -135,11 +137,11 @@ public:
 			lvi.cchTextMax = baseBufLen;
 			lvi.pszText = &buf[0];
 			charsWrittenWithoutNull = static_cast<int>(
-				SendMessageW(this->_hList, LVM_GETITEMTEXT,
+				SendMessage(this->_hList, LVM_GETITEMTEXT,
 					this->_index, reinterpret_cast<LPARAM>(&lvi)) );
 		} while (charsWrittenWithoutNull == baseBufLen - 1); // to break, must have at least 1 char gap
 
-		buf.resize(lstrlenW(buf.c_str())); // str::trim_nulls()
+		buf.resize(lstrlen(buf.c_str())); // str::trim_nulls()
 		return buf;
 	}
 
@@ -149,12 +151,12 @@ public:
 		return *this;
 	}
 
-	listview_item& set_text(const std::wstring& text, size_t columnIndex = 0) noexcept {
+	listview_item& set_text(const wl::tstring& text, size_t columnIndex = 0) noexcept {
 		return this->set_text(text.c_str(), columnIndex);
 	}
 
 	LPARAM get_param() const noexcept {
-		LVITEMW lvi{};
+		LVITEM lvi{};
 		lvi.iItem = static_cast<int>(this->_index);
 		lvi.mask = LVIF_PARAM;
 
@@ -163,7 +165,7 @@ public:
 	}
 
 	listview_item& set_param(LPARAM lp) noexcept {
-		LVITEMW lvi{};
+		LVITEM lvi{};
 		lvi.iItem = static_cast<int>(this->_index);
 		lvi.mask = LVIF_PARAM;
 		lvi.lParam = lp;
@@ -173,7 +175,7 @@ public:
 	}
 
 	int get_icon_index() const noexcept {
-		LVITEMW lvi{};
+		LVITEM lvi{};
 		lvi.iItem = static_cast<int>(this->_index);
 		lvi.mask = LVIF_IMAGE;
 
@@ -182,7 +184,7 @@ public:
 	}
 
 	listview_item& set_icon_index(int imagelistIconIndex) noexcept {
-		LVITEMW lvi{};
+		LVITEM lvi{};
 		lvi.iItem = static_cast<int>(this->_index);
 		lvi.mask = LVIF_IMAGE;
 		lvi.iImage = imagelistIconIndex;

@@ -9,6 +9,7 @@
 #include <string>
 #include <OleAuto.h>
 #include "com_ptr.h"
+#include "tstring.h"
 
 namespace wl {
 
@@ -48,16 +49,17 @@ public:
 	variant& set_str(const TCHAR* s) noexcept {
 		this->clear();
 		this->_variantObj.vt = VT_BSTR;
-		this->_variantObj.bstrVal = SysAllocString(s);
+		this->_variantObj.bstrVal = SysAllocString(wl::to_wstring(s).c_str());
 		return *this;
 	}
 
-	variant& set_str(const std::wstring& s) noexcept {
+	variant& set_str(const wl::tstring& s) noexcept {
 		return this->set_str(s.c_str());
 	}
 
-	const TCHAR* get_str() const noexcept {
-		return static_cast<TCHAR*>(this->_variantObj.bstrVal);
+	// VT_BSTR is always wide (OLECHAR == wchar_t), regardless of _UNICODE.
+	const wchar_t* get_str() const noexcept {
+		return this->_variantObj.bstrVal;
 	}
 
 	variant& set_int4(long n) noexcept {

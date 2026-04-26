@@ -9,6 +9,7 @@
 #include "file.h"
 #include "com.h"
 #include <Shlobj.h>
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -18,7 +19,7 @@ private:
 	zip() = delete;
 
 public:
-	static void extract_all(const std::wstring& zipFile, const std::wstring& destFolder) {
+	static void extract_all(const wl::tstring& zipFile, const wl::tstring& destFolder) {
 		if (!file::util::exists(zipFile)) {
 			throw std::invalid_argument("File doesn't exist.");
 		}

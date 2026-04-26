@@ -9,6 +9,7 @@
 #include <string>
 #include <Windows.h>
 #include <CommCtrl.h>
+#include "tstring.h"
 
 namespace wl {
 namespace _wli {
@@ -29,7 +30,7 @@ public:
 	}
 
 	listview_column_collection& add(const TCHAR* text, size_t width) noexcept {
-		LVCOLUMNW lvc{};
+		LVCOLUMN lvc{};
 		lvc.mask = LVCF_TEXT | LVCF_WIDTH;
 		lvc.pszText = const_cast<TCHAR*>(text);
 		lvc.cx = static_cast<int>(width);
@@ -37,7 +38,7 @@ public:
 		return *this;
 	}
 
-	listview_column_collection& add(const std::wstring& text, size_t width) noexcept {
+	listview_column_collection& add(const wl::tstring& text, size_t width) noexcept {
 		return this->add(text.c_str(), width);
 	}
 
@@ -51,7 +52,7 @@ public:
 		int cxUsed = 0;
 		for (size_t i = 0; i < numCols; ++i) {
 			if (i != columnIndex) {
-				LVCOLUMNW lvc{};
+				LVCOLUMN lvc{};
 				lvc.mask = LVCF_WIDTH;
 				ListView_GetColumn(this->_hList, i, &lvc); // retrieve cx of each column, except stretchee
 				cxUsed += lvc.cx; // sum up
@@ -66,20 +67,20 @@ public:
 	}
 
 	listview_column_collection& set_text(size_t columnIndex, const TCHAR* text) noexcept {
-		LVCOLUMNW lvc{};
+		LVCOLUMN lvc{};
 		lvc.mask = LVCF_TEXT;
 		lvc.pszText = const_cast<TCHAR*>(text);
 		ListView_SetColumn(this->_hList, columnIndex, &lvc);
 		return *this;
 	}
 
-	listview_column_collection& set_text(size_t columnIndex, const std::wstring& text) noexcept {
+	listview_column_collection& set_text(size_t columnIndex, const wl::tstring& text) noexcept {
 		return this->set_text(columnIndex, text.c_str());
 	}
 
-	std::wstring get_text(size_t columnIndex) const {
+	wl::tstring get_text(size_t columnIndex) const {
 		TCHAR buf[64]{}; // arbitrary length
-		LVCOLUMNW lvc{};
+		LVCOLUMN lvc{};
 		lvc.mask = LVCF_TEXT;
 		lvc.pszText = buf;
 		lvc.cchTextMax = ARRAYSIZE(buf);

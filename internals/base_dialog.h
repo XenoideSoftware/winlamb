@@ -29,9 +29,9 @@ public:
 	~base_dialog() {
 		if (this->_hWnd) {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			SetWindowLongPtrW(this->_hWnd, GWLP_USERDATA, 0);
+			SetWindowLongPtr(this->_hWnd, GWLP_USERDATA, 0);
 #else
-			SetWindowLongW(this->_hWnd, GWL_USERDATA, 0);
+			SetWindowLong(this->_hWnd, GWL_USERDATA, 0);
 #endif
 		}
 	}
@@ -42,30 +42,30 @@ public:
 	// Wrapper to CreateDialogParam.
 	HWND create_dialog_param(const setup_vars& setup, HWND hParent) {
 		this->_basic_initial_checks(setup);
-		return CreateDialogParamW(
+		return CreateDialogParam(
 			hParent ?
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-				reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE)) :
+				reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hParent, GWLP_HINSTANCE)) :
 #else
-				reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE)) :
+				reinterpret_cast<HINSTANCE>(GetWindowLong(hParent, GWL_HINSTANCE)) :
 #endif
 				GetModuleHandle(nullptr),
-			MAKEINTRESOURCEW(setup.dialogId), hParent, _dialog_proc,
+			MAKEINTRESOURCE(setup.dialogId), hParent, _dialog_proc,
 			reinterpret_cast<LPARAM>(this));
 	}
 
 	// Wrapper to DialogBoxParam.
 	INT_PTR dialog_box_param(const setup_vars& setup, HWND hParent) {
 		this->_basic_initial_checks(setup);
-		return DialogBoxParamW(
+		return DialogBoxParam(
 			hParent ?
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-				reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE)) :
+				reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hParent, GWLP_HINSTANCE)) :
 #else
-				reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE)) :
+				reinterpret_cast<HINSTANCE>(GetWindowLong(hParent, GWL_HINSTANCE)) :
 #endif
 				GetModuleHandle(nullptr),
-			MAKEINTRESOURCEW(setup.dialogId), hParent, _dialog_proc,
+			MAKEINTRESOURCE(setup.dialogId), hParent, _dialog_proc,
 			reinterpret_cast<LPARAM>(this));
 	}
 
@@ -86,17 +86,17 @@ private:
 		if (msg == WM_INITDIALOG) {
 			pSelf = reinterpret_cast<base_dialog*>(lp);
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			SetWindowLongPtrW(hDlg, DWLP_USER, reinterpret_cast<LONG_PTR>(pSelf));
+			SetWindowLongPtr(hDlg, DWLP_USER, reinterpret_cast<LONG_PTR>(pSelf));
 #else
-			SetWindowLongW(hDlg, DWL_USER, reinterpret_cast<LONG>(pSelf));
+			SetWindowLong(hDlg, DWL_USER, reinterpret_cast<LONG>(pSelf));
 #endif
 			font::util::set_ui_on_children(hDlg); // if user creates controls manually, font must be set manually on them
 			pSelf->_hWnd = hDlg; // store HWND
 		} else {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			pSelf = reinterpret_cast<base_dialog*>(GetWindowLongPtrW(hDlg, DWLP_USER));
+			pSelf = reinterpret_cast<base_dialog*>(GetWindowLongPtr(hDlg, DWLP_USER));
 #else
-			pSelf = reinterpret_cast<base_dialog*>(GetWindowLongW(hDlg, DWL_USER));
+			pSelf = reinterpret_cast<base_dialog*>(GetWindowLong(hDlg, DWL_USER));
 #endif
 		}
 
@@ -111,9 +111,9 @@ private:
 			base_scroll::apply_behavior(pSelf->_hWnd);
 		} else if (msg == WM_NCDESTROY) { // cleanup
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			SetWindowLongPtrW(hDlg, DWLP_USER, 0);
+			SetWindowLongPtr(hDlg, DWLP_USER, 0);
 #else
-			SetWindowLongW(hDlg, DWL_USER, 0);
+			SetWindowLong(hDlg, DWL_USER, 0);
 #endif
 			if (pSelf) {
 				pSelf->_hWnd = nullptr; // clear HWND

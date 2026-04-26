@@ -7,6 +7,7 @@
 
 #pragma once
 #include "file.h"
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -51,7 +52,7 @@ public:
 		return *this;
 	}
 
-	file_mapped& open(const std::wstring& filePath, file::access accessType) {
+	file_mapped& open(const wl::tstring& filePath, file::access accessType) {
 		this->close();
 
 		// Open file.
@@ -63,7 +64,7 @@ public:
 		};
 
 		// Mapping into memory.
-		this->_hMap = CreateFileMappingW(this->_file.hfile(), nullptr,
+		this->_hMap = CreateFileMapping(this->_file.hfile(), nullptr,
 			(accessType == file::access::READWRITE) ? PAGE_READWRITE : PAGE_READONLY, 0, 0, nullptr);
 		if (!this->_hMap) {
 			tooBad(GetLastError(), accessType == file::access::READWRITE ?
@@ -108,7 +109,7 @@ public:
 		};
 
 		// Remap into memory.
-		this->_hMap = CreateFileMappingW(this->_file.hfile(), 0, PAGE_READWRITE, 0, 0, nullptr);
+		this->_hMap = CreateFileMapping(this->_file.hfile(), 0, PAGE_READWRITE, 0, 0, nullptr);
 		if (!this->_hMap) {
 			tooBad(GetLastError(), "CreateFileMapping failed to recreate mapping");
 		}
@@ -161,8 +162,8 @@ public:
 			return buf;
 		}
 
-		static void              read_to_buffer(const std::wstring& filePath, std::vector<BYTE>& buf) { read_to_buffer(filePath.c_str(), buf); }
-		static std::vector<BYTE> read(const std::wstring& filePath)                                   { return read(filePath.c_str()); }
+		static void              read_to_buffer(const wl::tstring& filePath, std::vector<BYTE>& buf) { read_to_buffer(filePath.c_str(), buf); }
+		static std::vector<BYTE> read(const wl::tstring& filePath)                                   { return read(filePath.c_str()); }
 	};
 };
 

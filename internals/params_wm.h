@@ -10,6 +10,8 @@
 #include <vector>
 #include "params.h"
 #include <shellapi.h>
+#include <tchar.h>
+#include "tstring.h"
 
 namespace wl {
 
@@ -172,13 +174,13 @@ namespace wm {
 	struct dropfiles : public params {
 		dropfiles(const params& p) noexcept : params(p) { }
 		HDROP hdrop() const noexcept { return reinterpret_cast<HDROP>(this->wParam); }
-		UINT  count() const noexcept { return DragQueryFileW(this->hdrop(), 0xFFFFFFFF, nullptr, 0); }
-		std::vector<std::wstring> files() const {
-			std::vector<std::wstring> files(this->count()); // alloc return vector
+		UINT  count() const noexcept { return DragQueryFile(this->hdrop(), 0xFFFFFFFF, nullptr, 0); }
+		std::vector<wl::tstring> files() const {
+			std::vector<wl::tstring> files(this->count()); // alloc return vector
 			for (size_t i = 0; i < files.size(); ++i) {
-				files[i].resize(DragQueryFileW(this->hdrop(),
-					static_cast<UINT>(i), nullptr, 0) + 1, L'\0'); // alloc path string
-				DragQueryFileW(this->hdrop(), static_cast<UINT>(i), &files[i][0],
+				files[i].resize(DragQueryFile(this->hdrop(),
+					static_cast<UINT>(i), nullptr, 0) + 1, _T('\0')); // alloc path string
+				DragQueryFile(this->hdrop(), static_cast<UINT>(i), &files[i][0],
 					static_cast<UINT>(files[i].length()));
 				files[i].resize(files[i].length() - 1); // trim null
 			}
@@ -602,9 +604,9 @@ namespace wm {
 	struct settingchange : public params {
 		settingchange(const params& p) noexcept : params(p) { }
 		const TCHAR* string_id() const noexcept           { return reinterpret_cast<const TCHAR*>(this->lParam); }
-		bool           is_policy() const noexcept           { return !lstrcmpW(this->string_id(), L"Policy"); }
-		bool           is_locale() const noexcept           { return !lstrcmpW(this->string_id(), L"intl"); }
-		bool           is_environment_vars() const noexcept { return !lstrcmpW(this->string_id(), L"Environment"); }
+		bool           is_policy() const noexcept           { return !lstrcmp(this->string_id(), _T("Policy")); }
+		bool           is_locale() const noexcept           { return !lstrcmp(this->string_id(), _T("intl")); }
+		bool           is_environment_vars() const noexcept { return !lstrcmp(this->string_id(), _T("Environment")); }
 	};
 	struct showwindow : public params {
 		showwindow(const params& p) noexcept : params(p) { }

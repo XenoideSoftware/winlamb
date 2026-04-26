@@ -10,6 +10,8 @@
 #include "internals/styler.h"
 #include "str.h"
 #include "wnd.h"
+#include <tchar.h>
+#include "internals/tstring.h"
 
 namespace wl {
 
@@ -52,51 +54,51 @@ public:
 	}
 
 	size_t count() const noexcept {
-		return SendMessageW(this->_hWnd, CB_GETCOUNT, 0, 0);
+		return SendMessage(this->_hWnd, CB_GETCOUNT, 0, 0);
 	}
 
 	size_t get_selected_index() const noexcept {
-		return static_cast<size_t>(SendMessageW(this->_hWnd, CB_GETCURSEL, 0, 0));
+		return static_cast<size_t>(SendMessage(this->_hWnd, CB_GETCURSEL, 0, 0));
 	}
 
 	combobox& remove_all() noexcept {
-		SendMessageW(this->_hWnd, CB_RESETCONTENT, 0, 0);
+		SendMessage(this->_hWnd, CB_RESETCONTENT, 0, 0);
 		return *this;
 	}
 
-	combobox& add(const TCHAR* entries, TCHAR delimiter = L'|') {
-		TCHAR delim[2]{delimiter, L'\0'};
-		std::vector<std::wstring> vals = str::split(entries, delim);
-		for (const std::wstring& s : vals) {
-			SendMessageW(this->_hWnd, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s.c_str()));
+	combobox& add(const TCHAR* entries, TCHAR delimiter = _T('|')) {
+		TCHAR delim[2]{delimiter, _T('\0')};
+		std::vector<wl::tstring> vals = str::split(entries, delim);
+		for (const wl::tstring& s : vals) {
+			SendMessage(this->_hWnd, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s.c_str()));
 		}
 		return *this;
 	}
 
 	combobox& add(std::initializer_list<const TCHAR*> entries) noexcept {
 		for (const TCHAR* s : entries) {
-			SendMessageW(this->_hWnd, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
+			SendMessage(this->_hWnd, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
 		}
 		return *this;
 	}
 
-	std::wstring get_text(size_t index) const {
-		std::wstring buf;
-		size_t len = SendMessageW(this->_hWnd, CB_GETLBTEXTLEN, index, 0);
+	wl::tstring get_text(size_t index) const {
+		wl::tstring buf;
+		size_t len = SendMessage(this->_hWnd, CB_GETLBTEXTLEN, index, 0);
 		if (len) {
-			buf.resize(len, L'\0');
-			SendMessageW(this->_hWnd, CB_GETLBTEXT, index, reinterpret_cast<LPARAM>(&buf[0]));
+			buf.resize(len, _T('\0'));
+			SendMessage(this->_hWnd, CB_GETLBTEXT, index, reinterpret_cast<LPARAM>(&buf[0]));
 			buf.resize(len);
 		}
 		return buf;
 	}
 
-	std::wstring get_selected_text() const {
+	wl::tstring get_selected_text() const {
 		return this->get_text(this->get_selected_index());
 	}
 
 	combobox& select(size_t index) noexcept {
-		SendMessageW(this->_hWnd, CB_SETCURSEL, index, 0);
+		SendMessage(this->_hWnd, CB_SETCURSEL, index, 0);
 		return *this;
 	}
 };

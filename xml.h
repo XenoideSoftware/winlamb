@@ -10,6 +10,7 @@
 #include "com.h"
 #include "insert_order_map.h"
 #include <MsXml2.h>
+#include "internals/tstring.h"
 #pragma comment(lib, "msxml2.lib")
 
 namespace wl {
@@ -20,9 +21,9 @@ public:
 	// A single XML node.
 	class node final {
 	public:
-		std::wstring name;
-		std::wstring value;
-		insert_order_map<std::wstring, std::wstring> attrs;
+		wl::tstring name;
+		wl::tstring value;
+		insert_order_map<wl::tstring, wl::tstring> attrs;
 		std::vector<node> children;
 
 		void clear() noexcept {
@@ -35,27 +36,27 @@ public:
 		std::vector<std::reference_wrapper<node>> children_by_name(const TCHAR* elemName) {
 			std::vector<std::reference_wrapper<node>> nodeBuf;
 			for (node& node : this->children) {
-				if (!lstrcmpiW(node.name.c_str(), elemName)) { // case-insensitive match
+				if (!lstrcmpi(node.name.c_str(), elemName)) { // case-insensitive match
 					nodeBuf.emplace_back(node);
 				}
 			}
 			return nodeBuf;
 		}
 
-		std::vector<std::reference_wrapper<node>> children_by_name(const std::wstring& elemName) {
+		std::vector<std::reference_wrapper<node>> children_by_name(const wl::tstring& elemName) {
 			return this->children_by_name(elemName.c_str());
 		}
 
 		node* first_child_by_name(const TCHAR* elemName) noexcept {
 			for (node& node : this->children) {
-				if (!lstrcmpiW(node.name.c_str(), elemName)) { // case-insensitive match
+				if (!lstrcmpi(node.name.c_str(), elemName)) { // case-insensitive match
 					return &node;
 				}
 			}
 			return nullptr; // not found
 		}
 
-		node* first_child_by_name(const std::wstring& elemName) noexcept {
+		node* first_child_by_name(const wl::tstring& elemName) noexcept {
 			return this->first_child_by_name(elemName.c_str());
 		}
 	};
@@ -70,7 +71,7 @@ public:
 	xml() = default;
 	xml(xml&& other) noexcept    : root{std::move(other.root)} { }
 	xml(const TCHAR* str)      { this->parse(str); }
-	xml(const std::wstring& str) : xml(str.c_str()) { }
+	xml(const wl::tstring& str) : xml(str.c_str()) { }
 
 	xml& operator=(xml&& other) noexcept {
 		this->root.clear();
@@ -105,7 +106,7 @@ public:
 		return *this;
 	}
 
-	xml& parse(const std::wstring& str) {
+	xml& parse(const wl::tstring& str) {
 		return this->parse(str.c_str());
 	}
 
@@ -159,7 +160,7 @@ private:
 		return ret;
 	}
 
-	static insert_order_map<std::wstring, std::wstring> _read_attrs(com::ptr<IXMLDOMNode>& xmlnode) {
+	static insert_order_map<wl::tstring, wl::tstring> _read_attrs(com::ptr<IXMLDOMNode>& xmlnode) {
 		// Read attribute collection.
 		com::ptr<IXMLDOMNamedNodeMap> attrs;
 		xmlnode->get_attributes(&attrs);
@@ -167,7 +168,7 @@ private:
 		long attrCount = 0;
 		attrs->get_length(&attrCount);
 
-		insert_order_map<std::wstring, std::wstring> ret;
+		insert_order_map<wl::tstring, wl::tstring> ret;
 		ret.reserve(attrCount);
 
 		for (long i = 0; i < attrCount; ++i) {

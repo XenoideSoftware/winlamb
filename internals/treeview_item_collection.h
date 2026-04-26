@@ -7,6 +7,7 @@
 
 #pragma once
 #include "treeview_item.h"
+#include "tstring.h"
 
 namespace wl {
 namespace _wli {
@@ -57,7 +58,7 @@ public:
 	}
 
 	treeview_item add_root(const TCHAR* text, int imagelistIconIndex = -1) noexcept {
-		TVINSERTSTRUCTW tvi{};
+		TVINSERTSTRUCT tvi{};
 		tvi.hParent = TVI_ROOT;
 		tvi.hInsertAfter = TVI_LAST;
 		tvi.itemex.mask = TVIF_TEXT | (imagelistIconIndex == -1 ? 0 : (TVIF_IMAGE | TVIF_SELECTEDIMAGE));
@@ -69,7 +70,7 @@ public:
 			this->_hTree}; // return newly added item
 	}
 
-	treeview_item add_root(const std::wstring& caption, int imagelistIconIndex = -1) noexcept {
+	treeview_item add_root(const wl::tstring& caption, int imagelistIconIndex = -1) noexcept {
 		return this->add_root(caption.c_str(), imagelistIconIndex);
 	}
 };

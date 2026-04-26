@@ -77,7 +77,7 @@ public:
 
 		HACCEL hAccel = nullptr;
 		if (this->setup.accelTableId) {
-			hAccel = LoadAcceleratorsW(hInst, MAKEINTRESOURCEW(this->setup.accelTableId));
+			hAccel = LoadAccelerators(hInst, MAKEINTRESOURCE(this->setup.accelTableId));
 			if (!hAccel) {
 				throw std::system_error(GetLastError(), std::system_category(),
 					"LoadAccelerators failed for main dialog");
@@ -92,13 +92,13 @@ public:
 private:
 	void _set_icon(HINSTANCE hInst) const noexcept {
 		if (this->setup.iconId) {
-			SendMessageW(this->_hWnd, WM_SETICON, ICON_SMALL,
-				reinterpret_cast<LPARAM>(reinterpret_cast<HICON>(LoadImageW(hInst,
-					MAKEINTRESOURCEW(this->setup.iconId),
+			SendMessage(this->_hWnd, WM_SETICON, ICON_SMALL,
+				reinterpret_cast<LPARAM>(reinterpret_cast<HICON>(LoadImage(hInst,
+					MAKEINTRESOURCE(this->setup.iconId),
 					IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR))));
-			SendMessageW(this->_hWnd, WM_SETICON, ICON_BIG,
-				reinterpret_cast<LPARAM>(reinterpret_cast<HICON>(LoadImageW(hInst,
-					MAKEINTRESOURCEW(this->setup.iconId),
+			SendMessage(this->_hWnd, WM_SETICON, ICON_BIG,
+				reinterpret_cast<LPARAM>(reinterpret_cast<HICON>(LoadImage(hInst,
+					MAKEINTRESOURCE(this->setup.iconId),
 					IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR))));
 		}
 	}

@@ -44,9 +44,9 @@ public:
 	~base_window() {
 		if (this->_hWnd) {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			SetWindowLongPtrW(this->_hWnd, GWLP_USERDATA, 0);
+			SetWindowLongPtr(this->_hWnd, GWLP_USERDATA, 0);
 #else
-			SetWindowLongW(this->_hWnd, GWL_USERDATA, 0);
+			SetWindowLong(this->_hWnd, GWL_USERDATA, 0);
 #endif
 		}
 	}
@@ -62,17 +62,17 @@ public:
 		if (!hInst) {
 									// on Win9x GWLP_HINSTANCE is not defined; use GWL_HINSTANCE
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE));
+			hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hParent, GWLP_HINSTANCE));
 #else
-			hInst = reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE));
+			hInst = reinterpret_cast<HINSTANCE>(GetWindowLong(hParent, GWL_HINSTANCE));
 #endif
 		}
 
-		WNDCLASSEXW wcx = this->_gen_wndclassex(setup.wndClassEx, hInst);
+		WNDCLASSEX wcx = this->_gen_wndclassex(setup.wndClassEx, hInst);
 		ATOM atom = this->_register_class(wcx, setup);
 
-		if (!CreateWindowExW(setup.exStyle,
-			reinterpret_cast<LPCWSTR>(static_cast<ULONG_PTR>(static_cast<WORD>(atom))), // from MAKEINTATOM macro
+		if (!CreateWindowEx(setup.exStyle,
+			reinterpret_cast<LPCTSTR>(static_cast<ULONG_PTR>(static_cast<WORD>(atom))), // from MAKEINTATOM macro
 			setup.title, setup.style,
 			setup.position.x, setup.position.y, setup.size.cx, setup.size.cy,
 			hParent, setup.menu, hInst, static_cast<LPVOID>(this)) )
@@ -92,12 +92,12 @@ private:
 		}
 	}
 
-	ATOM _register_class(WNDCLASSEXW& wcx, const setup_vars& setup) {
-		ATOM atom = RegisterClassExW(&wcx);
+	ATOM _register_class(WNDCLASSEX& wcx, const setup_vars& setup) {
+		ATOM atom = RegisterClassEx(&wcx);
 		if (!atom) {
 			DWORD errCode = GetLastError();
 			if (errCode == ERROR_CLASS_ALREADY_EXISTS) {
-				atom = static_cast<ATOM>(GetClassInfoExW(wcx.hInstance,
+				atom = static_cast<ATOM>(GetClassInfoEx(wcx.hInstance,
 					wcx.lpszClassName, &wcx)); // https://blogs.msdn.microsoft.com/oldnewthing/20041011-00/?p=37603
 			} else {
 				throw std::system_error(errCode, std::system_category(),
@@ -107,9 +107,9 @@ private:
 		return atom;
 	}
 
-	WNDCLASSEXW _gen_wndclassex(const wndclassex_less& wLess, HINSTANCE hInst) const noexcept {
-		WNDCLASSEXW wcx{};
-		wcx.cbSize = sizeof(WNDCLASSEXW);
+	WNDCLASSEX _gen_wndclassex(const wndclassex_less& wLess, HINSTANCE hInst) const noexcept {
+		WNDCLASSEX wcx{};
+		wcx.cbSize = sizeof(WNDCLASSEX);
 		wcx.lpfnWndProc = _window_proc;
 		wcx.hInstance = hInst;
 
@@ -129,25 +129,25 @@ private:
 		if (msg == WM_NCCREATE) {
 			pSelf = reinterpret_cast<base_window*>(reinterpret_cast<CREATESTRUCT*>(lp)->lpCreateParams);
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			SetWindowLongPtrW(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pSelf));
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pSelf));
 #else
-			SetWindowLongW(hWnd, GWL_USERDATA, reinterpret_cast<LONG>(pSelf));
+			SetWindowLong(hWnd, GWL_USERDATA, reinterpret_cast<LONG>(pSelf));
 #endif
 			pSelf->_hWnd = hWnd; // store HWND
 		} else {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-			pSelf = reinterpret_cast<base_window*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
+			pSelf = reinterpret_cast<base_window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 #else
-			pSelf = reinterpret_cast<base_window*>(GetWindowLongW(hWnd, GWL_USERDATA));
+			pSelf = reinterpret_cast<base_window*>(GetWindowLong(hWnd, GWL_USERDATA));
 #endif
 		}
 
 		auto cleanupIfDestroyed = [&]() noexcept -> void {
 			if (msg == WM_NCDESTROY) {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-				SetWindowLongPtrW(hWnd, GWLP_USERDATA, 0);
+				SetWindowLongPtr(hWnd, GWLP_USERDATA, 0);
 #else
-				SetWindowLongW(hWnd, GWL_USERDATA, 0);
+				SetWindowLong(hWnd, GWL_USERDATA, 0);
 #endif
 				if (pSelf) {
 					pSelf->_hWnd = nullptr; // clear HWND
@@ -164,7 +164,7 @@ private:
 		}
 
 		cleanupIfDestroyed();
-		return DefWindowProcW(hWnd, msg, wp, lp); // message was not processed
+		return DefWindowProc(hWnd, msg, wp, lp); // message was not processed
 	}
 };
 

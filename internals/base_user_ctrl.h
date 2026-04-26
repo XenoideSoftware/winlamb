@@ -11,6 +11,7 @@
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
 #include <VsStyle.h>
 #include <Uxtheme.h>
+#include <tchar.h>
 #if defined(_MSC_VER)
 #pragma comment(lib, "UxTheme.lib")
 #endif
@@ -37,10 +38,10 @@ public:
 
 private:
 	void _paint_themed_borders(const params& p) const noexcept {
-		DefWindowProcW(this->_baseMsg.hwnd(), WM_NCPAINT, p.wParam, p.lParam); // make system draw the scrollbar for us
+		DefWindowProc(this->_baseMsg.hwnd(), WM_NCPAINT, p.wParam, p.lParam); // make system draw the scrollbar for us
 
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
-		if (!(GetWindowLongPtrW(this->_baseMsg.hwnd(), GWL_EXSTYLE) & WS_EX_CLIENTEDGE) ||
+		if (!(GetWindowLongPtr(this->_baseMsg.hwnd(), GWL_EXSTYLE) & WS_EX_CLIENTEDGE) ||
 			!IsThemeActive() ||
 			!IsAppThemed() ) return;
 
@@ -52,7 +53,7 @@ private:
 
 		RECT rc2{}; // clipping region; will draw only within this rectangle
 		HDC hdc = GetWindowDC(this->_baseMsg.hwnd());
-		HTHEME hTheme = OpenThemeData(this->_baseMsg.hwnd(), L"LISTVIEW"); // borrow style from listview
+		HTHEME hTheme = OpenThemeData(this->_baseMsg.hwnd(), _T("LISTVIEW")); // borrow style from listview
 		if (hTheme) {
 			SetRect(&rc2, rc.left, rc.top, rc.left + 2, rc.bottom); // draw only the borders to avoid flickering
 			DrawThemeBackground(hTheme, hdc, LVP_LISTGROUP, 0, &rc, &rc2); // draw themed left border
