@@ -76,6 +76,6 @@ public:
 	}
 };
 
-ENABLE_BITMASK_OPERATORS(scrollinfo::info);
-
 }//namespace wl
+
+ENABLE_BITMASK_OPERATORS(wl::scrollinfo::info);

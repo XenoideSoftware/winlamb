@@ -125,6 +125,6 @@ enum class wsx : DWORD {
 	WINDOWEDGE = WS_EX_WINDOWEDGE
 };
 
-ENABLE_BITMASK_OPERATORS(wsx);
-
 }//namespace wl
+
+ENABLE_BITMASK_OPERATORS(wl::wsx);

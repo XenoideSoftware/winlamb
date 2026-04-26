@@ -9,8 +9,15 @@
 #include <string>
 #include "com.h"
 #include "insert_order_map.h"
-#include <MsXml2.h>
+#include "internals/compat.h"
 #include "internals/tstring.h"
+
+// Skip the MSXML wrapper on toolchains without <MsXml2.h>. internals/compat.h
+// detects the missing header and defines WL_NO_MSXML2; opaque forward
+// declarations would not be enough because com::ptr<T>::~ptr() needs the
+// COM interface's vtable to call Release().
+#ifndef WL_NO_MSXML2
+#include <MsXml2.h>
 #pragma comment(lib, "msxml2.lib")
 
 namespace wl {
@@ -206,3 +213,5 @@ private:
 };
 
 }//namespace wl
+
+#endif // !WL_NO_MSXML2

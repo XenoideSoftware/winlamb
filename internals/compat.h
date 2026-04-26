@@ -207,6 +207,24 @@ typedef struct {
     UCHAR Data[1];
 } POWERBROADCAST_SETTING, *PPOWERBROADCAST_SETTING;
 
+// ---- SHFILEOPSTRUCT FOF_NO_UI flag (XP+; combination of older flags)
+#ifndef FOF_NO_UI
+#define FOF_NO_UI (FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NOCONFIRMMKDIR)
+#endif
+
+// ---- CSIDL_MYDOCUMENTS (XP+; alias for CSIDL_PERSONAL on older SDKs)
+#ifndef CSIDL_MYDOCUMENTS
+#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
+#endif
+
+// ---- VsStyle.h LISTVIEW theme parts
+// base_user_ctrl.h pulls VsStyle.h to get LVP_LISTGROUP for DrawThemeBackground.
+// TDM-GCC's SDK omits VsStyle.h entirely; the canonical SDK value is 2
+// (LISTVIEWPARTS::LVP_LISTGROUP, with LVP_LISTITEM = 1).
+#ifndef LVP_LISTGROUP
+#define LVP_LISTGROUP 2
+#endif
+
 // ---- Notification structs added in XP/IE6
 // Only the fields actually accessed elsewhere in winlamb need to match the
 // real layout; winlamb's wmn::* wrappers just reinterpret_cast lParam, so
@@ -294,6 +312,55 @@ typedef struct tagTVKEYDOWN {
 } NMTVKEYDOWN, *LPNMTVKEYDOWN;
 
 #endif // legacy commctrl polyfill block
+
+// =====================================================================
+// UxTheme polyfill — declares HTHEME / theme APIs when <Uxtheme.h> is
+// unavailable. Their entry points live in uxtheme.dll (XP+); on Win9x
+// the callers in base_user_ctrl.h already early-out via IsThemeActive(),
+// so the imports are never resolved at runtime there.
+// =====================================================================
+#if defined(__has_include)
+    #if !__has_include(<Uxtheme.h>)
+        #define WL_NEED_UXTHEME_POLYFILL 1
+    #endif
+#endif
+
+#ifdef WL_NEED_UXTHEME_POLYFILL
+DECLARE_HANDLE(HTHEME);
+extern "C" {
+WINAPI BOOL    IsThemeActive(void);
+WINAPI BOOL    IsAppThemed(void);
+WINAPI HTHEME  OpenThemeData(HWND hwnd, LPCWSTR pszClassList);
+WINAPI HRESULT CloseThemeData(HTHEME hTheme);
+WINAPI HRESULT DrawThemeBackground(HTHEME hTheme, HDC hdc, int iPartId,
+    int iStateId, const RECT* pRect, const RECT* pClipRect);
+}
+#endif
+
+// =====================================================================
+// IID_PPV_ARGS polyfill — needed by com_ptr.h's templated overloads.
+// The standard SDK macro relies on __uuidof, which GCC supports only
+// with -fms-extensions. We supply the same expansion when the macro is
+// missing; if the host TU lacks -fms-extensions the resulting compile
+// error points users at com_ptr's explicit IID overloads instead.
+// =====================================================================
+#ifndef IID_PPV_ARGS
+#define IID_PPV_ARGS(ppType) \
+    __uuidof(**(ppType)), reinterpret_cast<void**>(ppType)
+#endif
+
+// =====================================================================
+// MsXml2 availability flag — xml.h pulls <MsXml2.h> for IXMLDOMDocument2
+// and friends, which TDM-GCC's SDK doesn't ship. Forward-declarations
+// alone aren't enough because wl::com::ptr<T>::~ptr() invokes T->Release(),
+// which requires a complete type with a vtable. Detect the missing header
+// here and let xml.h gate its entire class behind WL_NO_MSXML2 instead.
+// =====================================================================
+#if defined(__has_include)
+    #if !__has_include(<MsXml2.h>)
+        #define WL_NO_MSXML2 1
+    #endif
+#endif
 
 namespace wl {
 namespace _wli {

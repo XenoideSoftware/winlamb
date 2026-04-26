@@ -74,6 +74,6 @@ enum class wc : UINT {
 	VREDRAW = CS_VREDRAW
 };
 
-ENABLE_BITMASK_OPERATORS(wc);
-
 }//namespace wl
+
+ENABLE_BITMASK_OPERATORS(wl::wc);

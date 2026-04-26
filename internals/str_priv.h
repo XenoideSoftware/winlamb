@@ -37,14 +37,21 @@ inline const TCHAR* format_raw_arg(const wl::tstring& val) noexcept {
 }
 
 template<typename ...argsT>
-inline wl::tstring format_raw(size_t strFormatLen, const TCHAR* strFormat, const argsT&... args) {
-	// https://msdn.microsoft.com/en-us/magazine/dn913181.aspx
-	// https://stackoverflow.com/a/514921/6923555
-	size_t len = _sctprintf(strFormat, format_raw_arg(args)...);
-	wl::tstring ret(len + 1, _T('\0')); // room for terminating null
-	_sntprintf(&ret[0], len + 1, strFormat, format_raw_arg(args)...);
-	ret.resize(len); // remove terminating null
-	return ret;
+inline wl::tstring format_raw(size_t /*strFormatLen*/, const TCHAR* strFormat, const argsT&... args) {
+	// _sctprintf is missing from TDM-GCC's CRT. Render straight into a
+	// generously-sized stack buffer, then trim. 8 KiB is far more than any
+	// winlamb caller (button captions, error messages, formatted paths)
+	// produces in practice; if the format truncates, we still get a valid
+	// (if shorter) string back rather than a broken two-pass dance.
+	TCHAR buf[8 * 1024];
+	int len = _sntprintf(buf, sizeof(buf) / sizeof(buf[0]),
+		strFormat, format_raw_arg(args)...);
+	if (len < 0) {
+		// Truncation: _sntprintf returns -1 on MSVCRT when the buffer is full.
+		len = static_cast<int>(sizeof(buf) / sizeof(buf[0])) - 1;
+		buf[len] = _T('\0');
+	}
+	return wl::tstring(buf, static_cast<size_t>(len));
 }
 
 inline bool ends_begins_first_check(const wl::tstring& s, const TCHAR* what, size_t& whatLen) noexcept {

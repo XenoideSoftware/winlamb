@@ -9,8 +9,22 @@
 #include "base_msg.h"
 
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0501
-#include <VsStyle.h>
-#include <Uxtheme.h>
+// VsStyle.h / Uxtheme.h ship with the Visual Studio SDK and modern
+// mingw-w64, but TDM-GCC's frozen MinGW headers omit them. internals/compat.h
+// supplies LVP_LISTGROUP and the uxtheme function prototypes when they're
+// missing; only pull the real headers when the toolchain actually has them.
+#include "compat.h"
+#if defined(__has_include)
+    #if __has_include(<VsStyle.h>)
+        #include <VsStyle.h>
+    #endif
+    #if __has_include(<Uxtheme.h>)
+        #include <Uxtheme.h>
+    #endif
+#elif defined(_MSC_VER)
+    #include <VsStyle.h>
+    #include <Uxtheme.h>
+#endif
 #include <tchar.h>
 #if defined(_MSC_VER)
 #pragma comment(lib, "UxTheme.lib")
@@ -53,7 +67,9 @@ private:
 
 		RECT rc2{}; // clipping region; will draw only within this rectangle
 		HDC hdc = GetWindowDC(this->_baseMsg.hwnd());
-		HTHEME hTheme = OpenThemeData(this->_baseMsg.hwnd(), _T("LISTVIEW")); // borrow style from listview
+		// OpenThemeData is wide-only (uxtheme.dll has no ANSI surface), so the
+		// class-name string must be a wchar_t literal regardless of build mode.
+		HTHEME hTheme = OpenThemeData(this->_baseMsg.hwnd(), L"LISTVIEW"); // borrow style from listview
 		if (hTheme) {
 			SetRect(&rc2, rc.left, rc.top, rc.left + 2, rc.bottom); // draw only the borders to avoid flickering
 			DrawThemeBackground(hTheme, hdc, LVP_LISTGROUP, 0, &rc, &rc2); // draw themed left border

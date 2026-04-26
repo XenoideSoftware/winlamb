@@ -14,6 +14,10 @@
 #include <tchar.h>
 #include "internals/tstring.h"
 
+// Skip the download class entirely on toolchains without <winhttp.h>; the
+// _wli wrappers it depends on disappear under the same gate.
+#ifndef WL_NO_WINHTTP
+
 namespace wl {
 
 // Automates internet download operations.
@@ -246,3 +250,5 @@ private:
 };
 
 }//namespace wl
+
+#endif // !WL_NO_WINHTTP

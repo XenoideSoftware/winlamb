@@ -114,6 +114,27 @@ public:
 	private:
 		util() = delete;
 
+	private:
+		// Free CALLBACK functions used by the EnumChildWindows / EnumFontFamilies
+		// helpers below — captureless lambdas decay to __cdecl on 32-bit MinGW,
+		// which can't implicitly convert to the __stdcall typedefs the Win32
+		// APIs require, so we hoist them into stand-alone CALLBACK-qualified
+		// functions and tunnel state through the LPARAM as before.
+		static BOOL CALLBACK _set_font_on_child(HWND hWnd, LPARAM lp) noexcept {
+			SendMessage(hWnd, WM_SETFONT,
+				reinterpret_cast<WPARAM>(reinterpret_cast<HFONT>(lp)),
+				MAKELPARAM(FALSE, 0));
+			return TRUE;
+		}
+
+		static int CALLBACK _font_exists_proc(const LOGFONT* /*lpelf*/,
+			const TEXTMETRIC* /*lpntm*/, DWORD /*fontType*/, LPARAM lp) noexcept
+		{
+			bool* pIsInstalled = reinterpret_cast<bool*>(lp);
+			*pIsInstalled = true; // if we're here, the font does exist
+			return 0;
+		}
+
 	public:
 		// Applies default UI font on all children of the window.
 		static void set_ui_on_children(HWND hParent) {
@@ -123,12 +144,8 @@ public:
 			SendMessage(hParent, WM_SETFONT,
 				reinterpret_cast<WPARAM>(oneFont._hFont),
 				MAKELPARAM(FALSE, 0));
-			EnumChildWindows(hParent, [](HWND hWnd, LPARAM lp) noexcept -> BOOL {
-				SendMessage(hWnd, WM_SETFONT,
-					reinterpret_cast<WPARAM>(reinterpret_cast<HFONT>(lp)),
-					MAKELPARAM(FALSE, 0)); // will run on each child
-				return TRUE;
-			}, reinterpret_cast<LPARAM>(oneFont._hFont));
+			EnumChildWindows(hParent, &_set_font_on_child,
+				reinterpret_cast<LPARAM>(oneFont._hFont));
 		}
 
 		// Checks if the font is currently installed.
@@ -140,18 +157,17 @@ public:
 				throw std::system_error(GetLastError(), std::system_category(),
 					"GetDC failed when checking if font exists");
 			}
-			EnumFontFamilies(hdc, fontName,
-				[](const LOGFONT* lpelf, const TEXTMETRIC* lpntm, DWORD fontType, LPARAM lp) noexcept -> int {
-					bool* pIsInstalled = reinterpret_cast<bool*>(lp);
-					*pIsInstalled = true; // if we're here, font does exist
-					return 0;
-				}, reinterpret_cast<LPARAM>(&isInstalled));
+			EnumFontFamilies(hdc, fontName, &_font_exists_proc,
+				reinterpret_cast<LPARAM>(&isInstalled));
 			ReleaseDC(nullptr, hdc);
 			return isInstalled;
 		}
 	};
 };
 
-ENABLE_BITMASK_OPERATORS(font::deco);
-
 }//namespace wl
+
+// `enable_bitmask_operators` is a global-scope primary template, so its
+// specialization must also live at global scope (older GCC enforces this
+// strictly; MSVC tolerated the wl::-scoped form).
+ENABLE_BITMASK_OPERATORS(wl::font::deco);

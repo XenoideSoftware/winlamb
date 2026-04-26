@@ -9,7 +9,28 @@
 #include "file.h"
 #include "com.h"
 #include <Shlobj.h>
+#include "internals/compat.h"
 #include "internals/tstring.h"
+
+// The Shell.Application automation interfaces (IShellDispatch, Folder,
+// FolderItems) live in <shldisp.h>. TDM-GCC's frozen MinGW SDK ships the
+// header but not the OLE-Automation interface declarations winlamb relies
+// on. Detect that by probing for IShellDispatch via __has_include of the
+// dual-import <exdisp.h> wrapper that drags them in transitively. If the
+// type isn't visible, gate the wrapper out so the rest of winlamb still
+// compiles; callers needing wl::zip will get a clean "not declared" error.
+#if defined(__has_include)
+    #if !__has_include(<exdisp.h>) || !__has_include(<exdispid.h>)
+        #define WL_NO_SHELL_DISPATCH 1
+    #endif
+#endif
+// TDM-GCC ships exdisp.h but its IShellDispatch surface predates the
+// Folder/FolderItems automation. Force the gate on for that toolchain.
+#if defined(__GNUC__) && !defined(__MINGW64_VERSION_MAJOR)
+    #define WL_NO_SHELL_DISPATCH 1
+#endif
+
+#ifndef WL_NO_SHELL_DISPATCH
 
 namespace wl {
 
@@ -72,3 +93,5 @@ public:
 };
 
 }//namespace wl
+
+#endif // !WL_NO_SHELL_DISPATCH

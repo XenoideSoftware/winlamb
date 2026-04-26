@@ -110,7 +110,12 @@ private:
 	template<typename wrapped_itT>
 	class _base_iterator {
 	protected:
-		typename wrapped_itT _it;
+		// `typename` here was a stray qualifier — wrapped_itT is the template
+		// parameter itself, not a dependent nested type. Older GCC (5.1, used
+		// by TDM-GCC) rejects the declaration entirely under that spelling
+		// and synthesizes a class without an `_it` member, which then breaks
+		// every comparison/assignment helper in this base.
+		wrapped_itT _it;
 	public:
 		_base_iterator() = default;
 		_base_iterator(const _base_iterator& other) noexcept { this->operator=(other); }
@@ -132,21 +137,23 @@ private:
 
 public:
 	class const_iterator final : public _base_iterator<typename std::vector<entry>::const_iterator> {
+		using _base = _base_iterator<typename std::vector<entry>::const_iterator>;
 	public:
 		const_iterator() = default;
-		const_iterator(const const_iterator& other) noexcept : _base_iterator(other) { }
-		const_iterator(const typename std::vector<entry>::const_iterator& it) noexcept : _base_iterator<typename std::vector<entry>::const_iterator>(it) { }
-		const_iterator& operator=(const const_iterator& other) noexcept { return this->_base_iterator(other); }
+		const_iterator(const const_iterator& other) noexcept : _base(other) { }
+		const_iterator(const typename std::vector<entry>::const_iterator& it) noexcept : _base(it) { }
+		const_iterator& operator=(const const_iterator& other) noexcept { _base::operator=(other); return *this; }
 		const entry&    operator*() const  { return this->_it.operator*(); }
 		const entry*    operator->() const { return this->_it.operator->(); }
 	};
 
 	class iterator final : public _base_iterator<typename std::vector<entry>::iterator> {
+		using _base = _base_iterator<typename std::vector<entry>::iterator>;
 	public:
 		iterator() = default;
-		iterator(const iterator& other) noexcept : _base_iterator(other) { }
-		iterator(const typename std::vector<entry>::iterator& it) noexcept : _base_iterator<typename std::vector<entry>::iterator>(it) { }
-		iterator& operator=(const iterator& other) noexcept { return this->_base_iterator(other); }
+		iterator(const iterator& other) noexcept : _base(other) { }
+		iterator(const typename std::vector<entry>::iterator& it) noexcept : _base(it) { }
+		iterator& operator=(const iterator& other) noexcept { _base::operator=(other); return *this; }
 		entry&    operator*()  { return this->_it.operator*(); }
 		entry*    operator->() { return this->_it.operator->(); }
 	};
@@ -159,22 +166,24 @@ public:
 	iterator       end() noexcept          { return {this->_entries.end()}; }
 
 	class const_reverse_iterator final : public _base_iterator<typename std::vector<entry>::const_reverse_iterator> {
+		using _base = _base_iterator<typename std::vector<entry>::const_reverse_iterator>;
 	public:
 		const_reverse_iterator() = default;
-		const_reverse_iterator(const const_reverse_iterator& other) noexcept : _base_iterator(other) { }
-		const_reverse_iterator(const typename std::vector<entry>::const_reverse_iterator& it) noexcept : _base_iterator<typename std::vector<entry>::const_reverse_iterator>(it) { }
-		const_reverse_iterator& operator=(const const_reverse_iterator& other) noexcept { return this->_base_iterator(other); }
+		const_reverse_iterator(const const_reverse_iterator& other) noexcept : _base(other) { }
+		const_reverse_iterator(const typename std::vector<entry>::const_reverse_iterator& it) noexcept : _base(it) { }
+		const_reverse_iterator& operator=(const const_reverse_iterator& other) noexcept { _base::operator=(other); return *this; }
 		const entry&            operator*() const  { return this->_it.operator*(); }
 		const entry*            operator->() const { return this->_it.operator->(); }
 		const_iterator          base() const { return {this->_it.base()}; }
 	};
 
 	class reverse_iterator final : public _base_iterator<typename std::vector<entry>::reverse_iterator> {
+		using _base = _base_iterator<typename std::vector<entry>::reverse_iterator>;
 	public:
 		reverse_iterator() = default;
-		reverse_iterator(const reverse_iterator& other) noexcept : _base_iterator(other) { }
-		reverse_iterator(const typename std::vector<entry>::reverse_iterator& it) noexcept : _base_iterator<typename std::vector<entry>::reverse_iterator>(it) { }
-		reverse_iterator& operator=(const reverse_iterator& other) noexcept { return this->_base_iterator(other); }
+		reverse_iterator(const reverse_iterator& other) noexcept : _base(other) { }
+		reverse_iterator(const typename std::vector<entry>::reverse_iterator& it) noexcept : _base(it) { }
+		reverse_iterator& operator=(const reverse_iterator& other) noexcept { _base::operator=(other); return *this; }
 		entry&            operator*()  { return this->_it.operator*(); }
 		entry*            operator->() { return this->_it.operator->(); }
 		iterator          base() const { return {this->_it.base()}; }

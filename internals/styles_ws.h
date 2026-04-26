@@ -95,6 +95,6 @@ enum class ws : DWORD {
 	VSCROLL = WS_VSCROLL
 };
 
-ENABLE_BITMASK_OPERATORS(ws);
-
 }//namespace wl
+
+ENABLE_BITMASK_OPERATORS(wl::ws);

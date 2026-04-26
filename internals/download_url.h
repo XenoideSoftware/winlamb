@@ -9,8 +9,17 @@
 #include <string>
 #include <system_error>
 #include <Windows.h>
-#include <winhttp.h>
 #include "tstring.h"
+// See download_session.h — the whole download module is gated on WinHTTP
+// availability so legacy SDKs that lack <winhttp.h> still let the rest of
+// winlamb compile.
+#if defined(__has_include)
+    #if !__has_include(<winhttp.h>)
+        #define WL_NO_WINHTTP 1
+    #endif
+#endif
+#ifndef WL_NO_WINHTTP
+#include <winhttp.h>
 #pragma comment(lib, "Winhttp.lib")
 
 namespace wl {
@@ -75,3 +84,5 @@ public:
 
 }//namespace _wli
 }//namespace wl
+
+#endif // !WL_NO_WINHTTP

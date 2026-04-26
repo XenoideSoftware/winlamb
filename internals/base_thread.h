@@ -41,21 +41,29 @@ public:
 		// Analog to std::thread([](){ ... }).detach(), but exception-safe.
 		_callback_pack* pPack = new _callback_pack{std::move(func), this->_baseMsg.hwnd()};
 
-		uintptr_t hThread = _beginthreadex(nullptr, 0, [](void* ptr) noexcept -> unsigned int {
-			_callback_pack* pPack = reinterpret_cast<_callback_pack*>(ptr);
-			try {
-				pPack->func(); // invoke user callback
-			} catch (...) {
-				_callback_pack* pCrashed = new _callback_pack{[]{}, pPack->hWnd, std::current_exception()};
-				SendMessage(pPack->hWnd, WM_THREAD_MESSAGE, 0, reinterpret_cast<LPARAM>(pCrashed));
-			}
-			delete pPack;
-			_endthreadex(0); // http://www.codeproject.com/Articles/7732/A-class-to-synchronise-thread-completions/
-			return 0;
-		}, pPack, 0, nullptr);
+		uintptr_t hThread = _beginthreadex(nullptr, 0, &_thread_proc, pPack, 0, nullptr);
 
 		CloseHandle(reinterpret_cast<HANDLE>(hThread));
 	}
+
+private:
+	// _beginthreadex requires unsigned __stdcall (*)(void*); a captureless
+	// lambda decays to __cdecl on 32-bit MinGW and the implicit conversion
+	// is rejected. Hoist the body into a free __stdcall thunk.
+	static unsigned __stdcall _thread_proc(void* ptr) noexcept {
+		_callback_pack* pPack = reinterpret_cast<_callback_pack*>(ptr);
+		try {
+			pPack->func(); // invoke user callback
+		} catch (...) {
+			_callback_pack* pCrashed = new _callback_pack{[]{}, pPack->hWnd, std::current_exception()};
+			SendMessage(pPack->hWnd, WM_THREAD_MESSAGE, 0, reinterpret_cast<LPARAM>(pCrashed));
+		}
+		delete pPack;
+		_endthreadex(0); // http://www.codeproject.com/Articles/7732/A-class-to-synchronise-thread-completions/
+		return 0;
+	}
+
+public:
 
 	// Runs code synchronously in the UI thread.
 	void run_thread_ui(std::function<void()> func) const noexcept {

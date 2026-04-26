@@ -9,9 +9,19 @@
 #include <system_error>
 #include <utility>
 #include <Windows.h>
+#include "tstring.h"
+// WinHTTP shipped with Windows 2000 and was bolted onto XP+. TDM-GCC's
+// frozen MinGW SDK predates the header altogether. Skip the entire wrapper
+// when <winhttp.h> isn't available — calling code that needs wl::download
+// will surface a clean "type not declared" error instead of a header miss.
+#if defined(__has_include)
+    #if !__has_include(<winhttp.h>)
+        #define WL_NO_WINHTTP 1
+    #endif
+#endif
+#ifndef WL_NO_WINHTTP
 #include <winhttp.h>
 #include <tchar.h>
-#include "tstring.h"
 #pragma comment(lib, "Winhttp.lib")
 
 namespace wl {
@@ -71,3 +81,5 @@ public:
 
 }//namespace _wli
 }//namespace wl
+
+#endif // !WL_NO_WINHTTP
