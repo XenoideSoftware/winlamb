@@ -105,7 +105,7 @@ private:
 
 public:
 	// Opens a file, throwing an exception if it doesn't exist.
-	file& open_existing(const wchar_t* filePath, access accessType) {
+	file& open_existing(const TCHAR* filePath, access accessType) {
 		if (!util::exists(filePath)) {
 			throw std::invalid_argument("File doesn't exist.");
 		}
@@ -121,7 +121,7 @@ public:
 	}
 
 	// Opens a file as read/write, creates if it doesn't exist.
-	file& open_or_create(const wchar_t* filePath) {
+	file& open_or_create(const TCHAR* filePath) {
 		return this->_raw_open(filePath, GENERIC_READ | GENERIC_WRITE, 0, OPEN_ALWAYS);
 	}
 
@@ -241,7 +241,7 @@ public:
 
 	public:
 		// Reads all file content at once into a buffer.
-		static void read_to_buffer(const wchar_t* filePath, std::vector<BYTE>& buf) {
+		static void read_to_buffer(const TCHAR* filePath, std::vector<BYTE>& buf) {
 			file fin;
 			fin.open_existing(filePath, access::READONLY);
 			fin.read_to_buffer(buf);
@@ -253,7 +253,7 @@ public:
 		}
 
 		// Retrieves all file content at once.
-		static std::vector<BYTE> read(const wchar_t* filePath) {
+		static std::vector<BYTE> read(const TCHAR* filePath) {
 			std::vector<BYTE> buf;
 			read_to_buffer(filePath, buf);
 			return buf;
@@ -265,7 +265,7 @@ public:
 		}
 
 		// Writes all content to file at once.
-		static void write(const wchar_t* filePath, const BYTE* pData, size_t sz) {
+		static void write(const TCHAR* filePath, const BYTE* pData, size_t sz) {
 			file fout;
 			fout.open_or_create(filePath);
 			fout.set_new_size(sz);
@@ -278,7 +278,7 @@ public:
 		}
 
 		// Writes all content to file at once.
-		static void write(const wchar_t* filePath, const std::vector<BYTE>& data) {
+		static void write(const TCHAR* filePath, const std::vector<BYTE>& data) {
 			write(filePath, &data[0], data.size());
 		}
 
@@ -288,7 +288,7 @@ public:
 		}
 
 		// Retrieves the file size in bytes.
-		static size_t get_size(const wchar_t* filePath) {
+		static size_t get_size(const TCHAR* filePath) {
 			file ff;
 			ff.open_existing(filePath, file::access::READONLY);
 			return ff.size();
@@ -300,7 +300,7 @@ public:
 		}
 
 		// Gets creation, last access and last write dates.
-		static dates get_dates(const wchar_t* filePath) {
+		static dates get_dates(const TCHAR* filePath) {
 			file ff;
 			ff.open_existing(filePath, file::access::READONLY);
 			return ff.get_dates();
@@ -312,7 +312,7 @@ public:
 		}
 
 		// Does the file exist on disk?
-		static bool exists(const wchar_t* fileOrFolder) noexcept {
+		static bool exists(const TCHAR* fileOrFolder) noexcept {
 			return GetFileAttributesW(fileOrFolder) != INVALID_FILE_ATTRIBUTES;
 		}
 
@@ -322,7 +322,7 @@ public:
 		}
 
 		// Is this path a directory?
-		static bool is_dir(const wchar_t* thePath) noexcept {
+		static bool is_dir(const TCHAR* thePath) noexcept {
 			return (GetFileAttributesW(thePath) & FILE_ATTRIBUTE_DIRECTORY) != 0;
 		}
 
@@ -332,7 +332,7 @@ public:
 		}
 
 		// Is the file hidden?
-		static bool is_hidden(const wchar_t* thePath) noexcept {
+		static bool is_hidden(const TCHAR* thePath) noexcept {
 			return (GetFileAttributesW(thePath) & FILE_ATTRIBUTE_HIDDEN) != 0;
 		}
 
@@ -345,7 +345,7 @@ public:
 		static void del(const std::wstring& fileOrFolder) {
 			if (is_dir(fileOrFolder)) {
 				// http://stackoverflow.com/q/1468774/6923555
-				wchar_t szDir[MAX_PATH + 1]{}; // +1 for the double null terminate
+				TCHAR szDir[MAX_PATH + 1]{}; // +1 for the double null terminate
 				lstrcpyW(szDir, fileOrFolder.c_str());
 
 				SHFILEOPSTRUCTW fos{};
@@ -366,7 +366,7 @@ public:
 		}
 
 		// Creates a new directory.
-		static void create_dir(const wchar_t* thePath) {
+		static void create_dir(const TCHAR* thePath) {
 			if (!CreateDirectoryW(thePath, nullptr)) {
 				throw std::system_error(GetLastError(), std::system_category(),
 					"CreateDirectory failed");

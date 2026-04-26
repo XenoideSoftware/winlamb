@@ -58,12 +58,12 @@ public:
 	}
 
 	// Adds a new child to the item, with a given image list icon.
-	treeview_item add_child_with_icon(const wchar_t* text, int imageListIconIndex = -1) noexcept {
+	treeview_item add_child_with_icon(const TCHAR* text, int imageListIconIndex = -1) noexcept {
 		TVINSERTSTRUCTW tvi{};
 		tvi.hParent = this->_hTreeItem;
 		tvi.hInsertAfter = TVI_LAST;
 		tvi.itemex.mask = TVIF_TEXT | (imageListIconIndex == -1 ? 0 : (TVIF_IMAGE | TVIF_SELECTEDIMAGE));
-		tvi.itemex.pszText = const_cast<wchar_t*>(text);
+		tvi.itemex.pszText = const_cast<TCHAR*>(text);
 		tvi.itemex.iImage = imageListIconIndex;
 		tvi.itemex.iSelectedImage = imageListIconIndex;
 
@@ -77,7 +77,7 @@ public:
 	}
 
 	// Adds a new child to the item.
-	treeview_item add_child(const wchar_t* caption) noexcept {
+	treeview_item add_child(const TCHAR* caption) noexcept {
 		return this->add_child_with_icon(caption, -1);
 	}
 
@@ -97,7 +97,7 @@ public:
 	}
 
 	std::wstring get_text() const {
-		wchar_t tmpBuf[MAX_PATH]{}; // arbitrary length
+		TCHAR tmpBuf[MAX_PATH]{}; // arbitrary length
 		TVITEMEX tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = TVIF_TEXT;
@@ -108,11 +108,11 @@ public:
 		return tvi.pszText;
 	}
 
-	treeview_item& set_text(const wchar_t* text) noexcept {
+	treeview_item& set_text(const TCHAR* text) noexcept {
 		TVITEMEX tvi{};
 		tvi.hItem = this->_hTreeItem;
 		tvi.mask = TVIF_TEXT;
-		tvi.pszText = const_cast<wchar_t*>(text);
+		tvi.pszText = const_cast<TCHAR*>(text);
 
 		TreeView_SetItem(this->_hTree, &tvi);
 		return *this;

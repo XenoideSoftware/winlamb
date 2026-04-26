@@ -45,7 +45,7 @@ public:
 		}
 	}
 
-	download_session& open(const wchar_t* userAgent = L"WinLamb/1.0") {
+	download_session& open(const TCHAR* userAgent = L"WinLamb/1.0") {
 		if (!this->_hSession) {
 			// http://social.msdn.microsoft.com/forums/en-US/vclanguage/thread/45ccd91c-6794-4f9b-8f4f-865c76cc146d
 			if (!WinHttpCheckPlatform()) {

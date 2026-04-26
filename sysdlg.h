@@ -76,10 +76,10 @@ inline int msgbox(const wnd* parent, const std::wstring& title, const std::wstri
 }
 
 // System dialog to select one file to be opened.
-inline bool open_file(HWND hParent, const wchar_t* filterWithPipes, std::wstring& buf) {
+inline bool open_file(HWND hParent, const TCHAR* filterWithPipes, std::wstring& buf) {
 	OPENFILENAME         ofn{};
-	wchar_t              tmpBuf[MAX_PATH]{};
-	std::vector<wchar_t> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
+	TCHAR              tmpBuf[MAX_PATH]{};
+	std::vector<TCHAR> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
 
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner   = hParent;
@@ -94,15 +94,15 @@ inline bool open_file(HWND hParent, const wchar_t* filterWithPipes, std::wstring
 }
 
 // System dialog to select one file to be opened.
-inline bool open_file(const wnd* parent, const wchar_t* filterWithPipes, std::wstring& buf) {
+inline bool open_file(const wnd* parent, const TCHAR* filterWithPipes, std::wstring& buf) {
 	return open_file(parent->hwnd(), filterWithPipes, buf);
 }
 
 // System dialog to select many files to be opened.
-inline bool open_files(HWND hParent, const wchar_t* filterWithPipes, std::vector<std::wstring>& arrBuf) {
+inline bool open_files(HWND hParent, const TCHAR* filterWithPipes, std::vector<std::wstring>& arrBuf) {
 	OPENFILENAME         ofn{};
-	std::vector<wchar_t> multiBuf(65536, L'\0'); // http://www.askjf.com/?q=2179s http://www.askjf.com/?q=2181s
-	std::vector<wchar_t> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
+	std::vector<TCHAR> multiBuf(65536, L'\0'); // http://www.askjf.com/?q=2179s http://www.askjf.com/?q=2181s
+	std::vector<TCHAR> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
 	arrBuf.clear();
 
 	ofn.lStructSize = sizeof(ofn);
@@ -147,15 +147,15 @@ inline bool open_files(HWND hParent, const wchar_t* filterWithPipes, std::vector
 }
 
 // System dialog to select many files to be opened.
-inline bool open_files(const wnd* parent, const wchar_t* filterWithPipes, std::vector<std::wstring>& arrBuf) {
+inline bool open_files(const wnd* parent, const TCHAR* filterWithPipes, std::vector<std::wstring>& arrBuf) {
 	return open_files(parent->hwnd(), filterWithPipes, arrBuf);
 }
 
 // System dialog to select where one file will be saved.
-inline bool save_file(HWND hParent, const wchar_t* filterWithPipes, std::wstring& buf, const std::wstring& defFile) {
+inline bool save_file(HWND hParent, const TCHAR* filterWithPipes, std::wstring& buf, const std::wstring& defFile) {
 	OPENFILENAME         ofn{};
-	wchar_t              tmpBuf[MAX_PATH]{};
-	std::vector<wchar_t> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
+	TCHAR              tmpBuf[MAX_PATH]{};
+	std::vector<TCHAR> zfilter = _wli::sysdlg_priv::format_file_filter(filterWithPipes);
 
 	if (!defFile.empty()) lstrcpyW(tmpBuf, defFile.c_str());
 
@@ -173,7 +173,7 @@ inline bool save_file(HWND hParent, const wchar_t* filterWithPipes, std::wstring
 }
 
 // System dialog to select where one file will be saved.
-inline bool save_file(const wnd* parent, const wchar_t* filterWithPipes, std::wstring& buf, const std::wstring& defFile) {
+inline bool save_file(const wnd* parent, const TCHAR* filterWithPipes, std::wstring& buf, const std::wstring& defFile) {
 	return save_file(parent->hwnd(), filterWithPipes, buf, defFile);
 }
 
@@ -190,7 +190,7 @@ inline bool choose_folder(HWND hParent, std::wstring& buf) {
 	PIDLIST_ABSOLUTE pidl = SHBrowseForFolderW(&bi);
 	if (!pidl) return false; // user cancelled
 
-	wchar_t tmpbuf[MAX_PATH]{};
+	TCHAR tmpbuf[MAX_PATH]{};
 	if (!SHGetPathFromIDListW(pidl, tmpbuf)) {
 		throw std::runtime_error("SHGetPathFromIDList failed.");
 	}

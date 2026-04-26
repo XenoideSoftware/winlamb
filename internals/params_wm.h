@@ -57,7 +57,7 @@ namespace wm {
 	struct askcbformatname : public params {
 		askcbformatname(const params& p) noexcept : params(p) { }
 		UINT     szbuffer() const noexcept { return static_cast<UINT>(this->wParam); }
-		wchar_t* buffer() const noexcept   { return reinterpret_cast<wchar_t*>(this->lParam); }
+		TCHAR* buffer() const noexcept   { return reinterpret_cast<TCHAR*>(this->lParam); }
 	};
 	WINLAMB_EMPTYWM(cancelmode);
 	struct capturechanged : public params {
@@ -141,7 +141,7 @@ namespace wm {
 	WINLAMB_EMPTYWM(destroyclipboard);
 	struct devmodechange : public params {
 		devmodechange(const params& p) noexcept : params(p) { }
-		const wchar_t* device_name() const noexcept { return reinterpret_cast<const wchar_t*>(this->lParam); }
+		const TCHAR* device_name() const noexcept { return reinterpret_cast<const TCHAR*>(this->lParam); }
 	};
 
 #ifdef _DBT_H // Ras.h
@@ -252,7 +252,7 @@ namespace wm {
 	struct gettext : public params {
 		gettext(const params& p) noexcept : params(p) { }
 		UINT     buffer_size() const noexcept { return static_cast<UINT>(this->wParam); }
-		wchar_t* buffer() const noexcept      { return reinterpret_cast<wchar_t*>(this->lParam); }
+		TCHAR* buffer() const noexcept      { return reinterpret_cast<TCHAR*>(this->lParam); }
 	};
 	WINLAMB_EMPTYWM(gettextlength);
 	struct help : public params {
@@ -597,11 +597,11 @@ namespace wm {
 	};
 	struct settext : public params {
 		settext(const params& p) noexcept : params(p) { }
-		const wchar_t* text() const noexcept { return reinterpret_cast<const wchar_t*>(this->lParam); }
+		const TCHAR* text() const noexcept { return reinterpret_cast<const TCHAR*>(this->lParam); }
 	};
 	struct settingchange : public params {
 		settingchange(const params& p) noexcept : params(p) { }
-		const wchar_t* string_id() const noexcept           { return reinterpret_cast<const wchar_t*>(this->lParam); }
+		const TCHAR* string_id() const noexcept           { return reinterpret_cast<const TCHAR*>(this->lParam); }
 		bool           is_policy() const noexcept           { return !lstrcmpW(this->string_id(), L"Policy"); }
 		bool           is_locale() const noexcept           { return !lstrcmpW(this->string_id(), L"intl"); }
 		bool           is_environment_vars() const noexcept { return !lstrcmpW(this->string_id(), L"Environment"); }

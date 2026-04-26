@@ -23,10 +23,10 @@ template<typename T> T static_holder<T>::val;
 static static_holder<HHOOK> hHookMsgBox; // global hooks
 static static_holder<HWND>  hWndParent;
 
-inline std::vector<wchar_t> format_file_filter(const wchar_t* filterWithPipes) {
+inline std::vector<TCHAR> format_file_filter(const TCHAR* filterWithPipes) {
 	// Input filter follows same C# syntax:
 	// L"Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
-	std::vector<wchar_t> ret(lstrlenW(filterWithPipes) + 2, L'\0'); // two terminating nulls
+	std::vector<TCHAR> ret(lstrlenW(filterWithPipes) + 2, L'\0'); // two terminating nulls
 	for (size_t i = 0; i < ret.size() - 1; ++i) {
 		ret[i] = (filterWithPipes[i] != L'|') ? filterWithPipes[i] : L'\0';
 	}

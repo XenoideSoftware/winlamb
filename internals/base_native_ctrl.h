@@ -35,16 +35,16 @@ public:
 	}
 
 	// Calls CreateWindowEx, then assign.
-	void create(HWND hParent, int ctrlId, const wchar_t* title,
-		POINT pos, SIZE size, const wchar_t* className,
+	void create(HWND hParent, int ctrlId, const TCHAR* title,
+		POINT pos, SIZE size, const TCHAR* className,
 		DWORD styles = (WS_CHILD | WS_VISIBLE), DWORD exStyles = 0)
 	{
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-		HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hParent, GWLP_HINSTANCE));
+		HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hParent, GWLP_HINSTANCE));
 #else
-		HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongW(hParent, GWL_HINSTANCE));
+		HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLong(hParent, GWL_HINSTANCE));
 #endif
-		return this->assign(CreateWindowExW(exStyles, className, title, styles,
+		return this->assign(CreateWindowEx(exStyles, className, title, styles,
 			pos.x, pos.y, size.cx, size.cy, hParent,
 			reinterpret_cast<HMENU>(static_cast<UINT_PTR>(ctrlId)),
 			hInst, nullptr));

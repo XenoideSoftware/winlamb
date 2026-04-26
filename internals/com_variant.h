@@ -45,7 +45,7 @@ public:
 		return *this;
 	}
 
-	variant& set_str(const wchar_t* s) noexcept {
+	variant& set_str(const TCHAR* s) noexcept {
 		this->clear();
 		this->_variantObj.vt = VT_BSTR;
 		this->_variantObj.bstrVal = SysAllocString(s);
@@ -56,8 +56,8 @@ public:
 		return this->set_str(s.c_str());
 	}
 
-	const wchar_t* get_str() const noexcept {
-		return static_cast<wchar_t*>(this->_variantObj.bstrVal);
+	const TCHAR* get_str() const noexcept {
+		return static_cast<TCHAR*>(this->_variantObj.bstrVal);
 	}
 
 	variant& set_int4(long n) noexcept {

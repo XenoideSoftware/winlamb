@@ -20,7 +20,7 @@ inline std::wstring& trim_backslash(std::wstring& filePath) {
 	return filePath;
 }
 
-inline bool is_same(const std::wstring& filePath, const wchar_t* other) noexcept {
+inline bool is_same(const std::wstring& filePath, const TCHAR* other) noexcept {
 	return !lstrcmpiW(filePath.c_str(), other);
 }
 
@@ -28,12 +28,12 @@ inline bool is_same(const std::wstring& filePath, const std::wstring& other) noe
 	return !lstrcmpiW(filePath.c_str(), other.c_str());
 }
 
-inline bool has_extension(const std::wstring& filePath, const wchar_t* extension) noexcept {
+inline bool has_extension(const std::wstring& filePath, const TCHAR* extension) noexcept {
 	if (extension[0] == L'.') { // extension starts with dot, compare right away
 		return str::ends_withi(filePath, extension);
 	}
 
-	wchar_t dotExtension[32] = L"."; // arbitrary buffer length
+	TCHAR dotExtension[32] = L"."; // arbitrary buffer length
 	lstrcatW(dotExtension, extension);
 	return str::ends_withi(filePath, dotExtension);
 }
@@ -42,8 +42,8 @@ inline bool has_extension(const std::wstring& filePath, const std::wstring& exte
 	return has_extension(filePath, extension.c_str());
 }
 
-inline bool has_extension(const std::wstring& filePath, std::initializer_list<const wchar_t*> extensions) noexcept {
-	for (const wchar_t* ext : extensions) {
+inline bool has_extension(const std::wstring& filePath, std::initializer_list<const TCHAR*> extensions) noexcept {
+	for (const TCHAR* ext : extensions) {
 		if (has_extension(filePath, ext)) {
 			return true;
 		}
@@ -51,7 +51,7 @@ inline bool has_extension(const std::wstring& filePath, std::initializer_list<co
 	return false;
 }
 
-inline std::wstring& change_extension(std::wstring& filePath, const wchar_t* newExtension) {
+inline std::wstring& change_extension(std::wstring& filePath, const TCHAR* newExtension) {
 	size_t dotIdx = filePath.find_last_of(L'.');
 	if (dotIdx != std::wstring::npos) { // filePath already have an extension
 		filePath.resize(dotIdx + 1); // truncate after the dot

@@ -34,14 +34,14 @@ public:
 	label& operator=(label&&) = default; // movable only
 
 	label& create(HWND hParent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size)
+		const TCHAR* caption, POINT pos, SIZE size)
 	{
-		this->_baseNativeCtrl.create(hParent, ctrlId, caption, pos, size, L"Static");
+		this->_baseNativeCtrl.create(hParent, ctrlId, caption, pos, size, _T("Static"));
 		return *this;
 	}
 
 	label& create(const wnd* parent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size)
+		const TCHAR* caption, POINT pos, SIZE size)
 	{
 		return this->create(parent->hwnd(), ctrlId, caption, pos, size);
 	}

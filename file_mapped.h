@@ -149,13 +149,13 @@ public:
 		util() = delete;
 
 	public:
-		static void read_to_buffer(const wchar_t* filePath, std::vector<BYTE>& buf) {
+		static void read_to_buffer(const TCHAR* filePath, std::vector<BYTE>& buf) {
 			file_mapped fin;
 			fin.open(filePath, file::access::READONLY);
 			fin.read_to_buffer(buf);
 		}
 
-		static std::vector<BYTE> read(const wchar_t* filePath) {
+		static std::vector<BYTE> read(const TCHAR* filePath) {
 			std::vector<BYTE> buf;
 			read_to_buffer(filePath, buf);
 			return buf;

@@ -16,7 +16,7 @@ namespace executable {
 
 // Retrieves path to current running EXE itself.
 inline std::wstring get_own_path() {
-	wchar_t buf[MAX_PATH + 1]{};
+	TCHAR buf[MAX_PATH + 1]{};
 	if (!GetModuleFileNameW(nullptr, buf, ARRAYSIZE(buf))) { // full path name
 		throw std::system_error(GetLastError(), std::system_category(),
 			"GetModuleFileName failed");

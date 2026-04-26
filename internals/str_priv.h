@@ -23,12 +23,12 @@ inline T format_raw_arg(T val) noexcept {
 	return val;
 }
 
-inline const wchar_t* format_raw_arg(const std::wstring& val) noexcept {
+inline const TCHAR* format_raw_arg(const std::wstring& val) noexcept {
 	return val.c_str(); // so format() will also accept wstring in formatting list
 }
 
 template<typename ...argsT>
-inline std::wstring format_raw(size_t strFormatLen, const wchar_t* strFormat, const argsT&... args) {
+inline std::wstring format_raw(size_t strFormatLen, const TCHAR* strFormat, const argsT&... args) {
 	// https://msdn.microsoft.com/en-us/magazine/dn913181.aspx
 	// https://stackoverflow.com/a/514921/6923555
 	size_t len = swprintf(nullptr, 0, strFormat, format_raw_arg(args)...);
@@ -38,7 +38,7 @@ inline std::wstring format_raw(size_t strFormatLen, const wchar_t* strFormat, co
 	return ret;
 }
 
-inline bool ends_begins_first_check(const std::wstring& s, const wchar_t* what, size_t& whatLen) noexcept {
+inline bool ends_begins_first_check(const std::wstring& s, const TCHAR* what, size_t& whatLen) noexcept {
 	if (s.empty()) return false;
 
 	whatLen = lstrlenW(what);
@@ -57,7 +57,7 @@ inline std::wstring parse_ascii(const BYTE* data, size_t sz) {
 				ret.resize(i);
 				return ret;
 			}
-			ret[i] = static_cast<wchar_t>(data[i]); // raw conversion
+			ret[i] = static_cast<TCHAR>(data[i]); // raw conversion
 		}
 	}
 	return ret; // data didn't have a terminating null

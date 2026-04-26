@@ -25,7 +25,7 @@ public:
 		return this->sections.operator[](sectionName);
 	}
 
-	file_ini& load_from_file(const wchar_t* filePath) {
+	file_ini& load_from_file(const TCHAR* filePath) {
 		std::wstring content = str::to_wstring(file_mapped::util::read(filePath));
 		std::vector<std::wstring> lines = str::split_lines(content);
 		insert_order_map<std::wstring, std::wstring>* curSection = nullptr; // section-less keys will be ignored
@@ -53,7 +53,7 @@ public:
 		return *this;
 	}
 
-	void save_to_file(const wchar_t* filePath) const {
+	void save_to_file(const TCHAR* filePath) const {
 		file::util::write(filePath,
 			str::to_utf8_blob(this->serialize(), str::write_bom::YES));
 	}

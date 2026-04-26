@@ -23,7 +23,7 @@ public:
 		_hWnd(hWnd) { }
 
 	// Simple wrapper to SetWindowText.
-	derivedT& set_text(const wchar_t* s) noexcept {
+	derivedT& set_text(const TCHAR* s) noexcept {
 		SetWindowTextW(this->_hWnd, s);
 		return *static_cast<derivedT*>(this);
 	}

@@ -66,7 +66,7 @@ public:
 		return *this;
 	}
 
-	font& create(const wchar_t* fontName, BYTE size, deco style = deco::NONE) {
+	font& create(const TCHAR* fontName, BYTE size, deco style = deco::NONE) {
 		this->destroy();
 		LOGFONT lf{};
 		lstrcpyW(lf.lfFaceName, fontName);
@@ -132,7 +132,7 @@ public:
 		}
 
 		// Checks if the font is currently installed.
-		static bool exists(const wchar_t* fontName) {
+		static bool exists(const TCHAR* fontName) {
 			// http://cboard.cprogramming.com/windows-programming/90066-how-determine-if-font-support-unicode.html
 			bool isInstalled = false;
 			HDC hdc = GetDC(nullptr);

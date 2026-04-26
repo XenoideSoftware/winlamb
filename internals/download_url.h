@@ -19,10 +19,10 @@ namespace _wli {
 class download_url final {
 private:
 	URL_COMPONENTS _uc{};
-	wchar_t        _scheme[16]{}, _host[64]{}, _user[64]{}, _pwd[64]{}, _path[256]{}, _extra[256]{};
+	TCHAR        _scheme[16]{}, _host[64]{}, _user[64]{}, _pwd[64]{}, _path[256]{}, _extra[256]{};
 
 public:
-	download_url& crack(const wchar_t* address) {
+	download_url& crack(const TCHAR* address) {
 		// This helper class simply breaks an URL address into several parts.
 		SecureZeroMemory(&this->_uc, sizeof(this->_uc));
 		this->_uc.dwStructSize = sizeof(this->_uc);
@@ -46,12 +46,12 @@ public:
 		return this->crack(address.c_str());
 	}
 
-	const wchar_t* scheme() const noexcept   { return this->_scheme; }
-	const wchar_t* host() const noexcept     { return this->_host; }
-	const wchar_t* user() const noexcept     { return this->_user; }
-	const wchar_t* pwd() const noexcept      { return this->_pwd; }
-	const wchar_t* path() const noexcept     { return this->_path; }
-	const wchar_t* extra() const noexcept    { return this->_extra; }
+	const TCHAR* scheme() const noexcept   { return this->_scheme; }
+	const TCHAR* host() const noexcept     { return this->_host; }
+	const TCHAR* user() const noexcept     { return this->_user; }
+	const TCHAR* pwd() const noexcept      { return this->_pwd; }
+	const TCHAR* path() const noexcept     { return this->_path; }
+	const TCHAR* extra() const noexcept    { return this->_extra; }
 	int            port() const noexcept     { return this->_uc.nPort; }
 	bool           is_https() const noexcept { return this->_uc.nScheme == INTERNET_SCHEME_HTTPS; }
 

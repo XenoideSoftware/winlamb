@@ -97,26 +97,26 @@ public:
 	datetime& add_hour(LONGLONG h) noexcept  { return this->add_min(h * 60); }
 	datetime& add_day(LONGLONG d) noexcept   { return this->add_hour(d * 24); }
 
-	const wchar_t* name_month() const noexcept {
-		const wchar_t* months[] = { L"January", L"February", L"March", L"April", L"May", L"June",
+	const TCHAR* name_month() const noexcept {
+		const TCHAR* months[] = { L"January", L"February", L"March", L"April", L"May", L"June",
 			L"July", L"August", L"September", L"October", L"November", L"December" };
 		return months[this->_st.wMonth - 1];
 	}
 
-	const wchar_t* name_month_short() const noexcept {
-		const wchar_t* months[] = { L"Jan", L"Feb", L"Mar", L"Apr", L"May", L"Jun",
+	const TCHAR* name_month_short() const noexcept {
+		const TCHAR* months[] = { L"Jan", L"Feb", L"Mar", L"Apr", L"May", L"Jun",
 			L"Jul", L"Aug", L"Sep", L"Oct", L"Nov", L"Dec" };
 		return months[this->_st.wMonth - 1];
 	}
 
-	const wchar_t* name_weekday() const noexcept {
-		const wchar_t* weekday[] = { L"Sunday", L"Monday", L"Tuesday", L"Wednesday",
+	const TCHAR* name_weekday() const noexcept {
+		const TCHAR* weekday[] = { L"Sunday", L"Monday", L"Tuesday", L"Wednesday",
 			L"Thursday", L"Friday", L"Saturday" };
 		return weekday[this->_st.wDayOfWeek];
 	}
 
-	const wchar_t* name_weekday_short() const noexcept {
-		const wchar_t* weekday[] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
+	const TCHAR* name_weekday_short() const noexcept {
+		const TCHAR* weekday[] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
 		return weekday[this->_st.wDayOfWeek];
 	}
 

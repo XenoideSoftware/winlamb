@@ -39,7 +39,7 @@ public:
 		LONG width, sort sortType)
 	{
 		this->_baseNativeCtrl.create(hParent, ctrlId, nullptr,
-			pos, {width, 0}, L"combobox",
+			pos, {width, 0}, _T("combobox"),
 			WS_CHILD | WS_VISIBLE | WS_TABSTOP | CBS_DROPDOWNLIST |
 			(sortType == sort::SORTED ? CBS_SORT : 0), 0);
 		return *this;
@@ -64,8 +64,8 @@ public:
 		return *this;
 	}
 
-	combobox& add(const wchar_t* entries, wchar_t delimiter = L'|') {
-		wchar_t delim[2]{delimiter, L'\0'};
+	combobox& add(const TCHAR* entries, TCHAR delimiter = L'|') {
+		TCHAR delim[2]{delimiter, L'\0'};
 		std::vector<std::wstring> vals = str::split(entries, delim);
 		for (const std::wstring& s : vals) {
 			SendMessageW(this->_hWnd, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s.c_str()));
@@ -73,8 +73,8 @@ public:
 		return *this;
 	}
 
-	combobox& add(std::initializer_list<const wchar_t*> entries) noexcept {
-		for (const wchar_t* s : entries) {
+	combobox& add(std::initializer_list<const TCHAR*> entries) noexcept {
+		for (const TCHAR* s : entries) {
 			SendMessageW(this->_hWnd, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
 		}
 		return *this;

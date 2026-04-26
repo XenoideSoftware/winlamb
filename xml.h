@@ -32,7 +32,7 @@ public:
 			this->children.clear();
 		}
 
-		std::vector<std::reference_wrapper<node>> children_by_name(const wchar_t* elemName) {
+		std::vector<std::reference_wrapper<node>> children_by_name(const TCHAR* elemName) {
 			std::vector<std::reference_wrapper<node>> nodeBuf;
 			for (node& node : this->children) {
 				if (!lstrcmpiW(node.name.c_str(), elemName)) { // case-insensitive match
@@ -46,7 +46,7 @@ public:
 			return this->children_by_name(elemName.c_str());
 		}
 
-		node* first_child_by_name(const wchar_t* elemName) noexcept {
+		node* first_child_by_name(const TCHAR* elemName) noexcept {
 			for (node& node : this->children) {
 				if (!lstrcmpiW(node.name.c_str(), elemName)) { // case-insensitive match
 					return &node;
@@ -69,7 +69,7 @@ public:
 
 	xml() = default;
 	xml(xml&& other) noexcept    : root{std::move(other.root)} { }
-	xml(const wchar_t* str)      { this->parse(str); }
+	xml(const TCHAR* str)      { this->parse(str); }
 	xml(const std::wstring& str) : xml(str.c_str()) { }
 
 	xml& operator=(xml&& other) noexcept {
@@ -78,7 +78,7 @@ public:
 		return *this;
 	}
 
-	xml& parse(const wchar_t* str) {
+	xml& parse(const TCHAR* str) {
 		this->_comLib.initialize(); // init COM library, if not yet
 		this->root.clear();
 
@@ -90,7 +90,7 @@ public:
 		// Parse the XML string.
 		VARIANT_BOOL vb = FALSE;
 		com::check_hr(
-			doc->loadXML(static_cast<BSTR>(const_cast<wchar_t*>(str)), &vb),
+			doc->loadXML(static_cast<BSTR>(const_cast<TCHAR*>(str)), &vb),
 			"IXMLDOMDocument::loadXML failed");
 
 		// Get document element and root node from XML.

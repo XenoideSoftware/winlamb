@@ -46,14 +46,14 @@ public:
 	progressbar& operator=(progressbar&&) = default; // movable only
 
 	progressbar& create(HWND hParent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size)
+		const TCHAR* caption, POINT pos, SIZE size)
 	{
 		this->_baseNativeCtrl.create(hParent, ctrlId, nullptr, pos, size, PROGRESS_CLASS);
 		return *this;
 	}
 
 	progressbar& create(const wnd* parent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size)
+		const TCHAR* caption, POINT pos, SIZE size)
 	{
 		return this->create(parent->hwnd(), ctrlId, caption, pos, size);
 	}

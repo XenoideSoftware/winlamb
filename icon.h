@@ -10,6 +10,7 @@
 #include <CommCtrl.h>
 #include <commoncontrols.h> // IID_IImageList
 #include "com.h"
+#include <tchar.h>
 
 namespace wl {
 
@@ -74,17 +75,18 @@ public:
 	}
 
 	// Loads the icon used by Windows Explorer to represent the given file type.
-	icon& load_from_shell(const wchar_t* fileExtension, res resolution) {
+	icon& load_from_shell(const TCHAR* fileExtension, res resolution) {
 		this->destroy();
-		wchar_t extens[16]{}; // arbitrary length
-		lstrcpyW(extens, (fileExtension[0] == L'.') ? L"*" : L"*."); // prepend dot if it doesn't have
-		lstrcatW(extens, fileExtension);
+
+		TCHAR extens[16]{}; // arbitrary length
+		lstrcpy(extens, (fileExtension[0] == _T('.')) ? _T("*") : _T("*.")); // prepend dot if it doesn't have
+		lstrcat(extens, fileExtension);
 
 		com::lib comLib{com::lib::init::NOW};
 		SHFILEINFO shfi{};
 
 		if (resolution == res::SMALL16 || resolution == res::LARGE32) { // http://stackoverflow.com/a/28015423
-			DWORD_PTR gfiOk = SHGetFileInfoW(extens, FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(shfi),
+			DWORD_PTR gfiOk = SHGetFileInfo(extens, FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(shfi),
 				SHGFI_USEFILEATTRIBUTES | SHGFI_ICON |
 				(resolution == res::SMALL16 ? SHGFI_SMALLICON : SHGFI_LARGEICON));
 			if (!gfiOk) {
@@ -99,7 +101,7 @@ public:
 					IID_IImageList, reinterpret_cast<void**>(&pImgList)),
 				"SHGetImageList failed when trying to load icon from shell");
 
-			DWORD_PTR gfiOk = SHGetFileInfoW(extens, FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(shfi),
+			DWORD_PTR gfiOk = SHGetFileInfo(extens, FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(shfi),
 				SHGFI_USEFILEATTRIBUTES | SHGFI_SYSICONINDEX);
 			if (!gfiOk) {
 				throw std::system_error(GetLastError(), std::system_category(),

@@ -128,7 +128,7 @@ public:
 		return *this;
 	}
 
-	statusbar& set_text(const wchar_t* text, size_t iPart) noexcept {
+	statusbar& set_text(const TCHAR* text, size_t iPart) noexcept {
 		SendMessageW(this->_hWnd, SB_SETTEXT, MAKEWPARAM(MAKEWORD(iPart, 0), 0),
 			reinterpret_cast<LPARAM>(text));
 		return *this;

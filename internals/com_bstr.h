@@ -27,7 +27,7 @@ public:
 
 	bstr() = default;
 	bstr(bstr&& other) noexcept          : _bstrObj{other._bstrObj} { other._bstrObj = nullptr; }
-	bstr(const wchar_t* s) noexcept      : _bstrObj{SysAllocString(s)} { }
+	bstr(const TCHAR* s) noexcept      : _bstrObj{SysAllocString(s)} { }
 	bstr(const std::wstring& s) noexcept : bstr(s.c_str()) { }
 
 	operator const BSTR&() const noexcept  { return this->_bstrObj; }
@@ -40,7 +40,7 @@ public:
 		return *this;
 	}
 	
-	bstr& operator=(const wchar_t* s) noexcept {
+	bstr& operator=(const TCHAR* s) noexcept {
 		this->free();
 		this->_bstrObj = SysAllocString(s);
 		return *this;
@@ -58,8 +58,8 @@ public:
 		return *this;
 	}
 
-	const wchar_t* c_str() const noexcept {
-		return static_cast<wchar_t*>(this->_bstrObj);
+	const TCHAR* c_str() const noexcept {
+		return static_cast<TCHAR*>(this->_bstrObj);
 	}
 };
 

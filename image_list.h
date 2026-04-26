@@ -110,7 +110,7 @@ public:
 	}
 
 	// Loads the icon used by Windows Explorer to represent the given file type.
-	image_list& load_from_shell(const wchar_t* fileExtension) {
+	image_list& load_from_shell(const TCHAR* fileExtension) {
 		icon::res iRes = icon::util::resolve_resolution_type(this->resolution());
 		if (iRes == icon::res::OTHER) {
 			throw std::logic_error("Trying to load icon from shell with unsupported resolution.");
@@ -121,8 +121,8 @@ public:
 	}
 
 	// Loads the icon used by Windows Explorer to represent the given file type.
-	image_list& load_from_shell(std::initializer_list<const wchar_t*> fileExtensions) {
-		for (const wchar_t* ext : fileExtensions) {
+	image_list& load_from_shell(std::initializer_list<const TCHAR*> fileExtensions) {
+		for (const TCHAR* ext : fileExtensions) {
 			this->load_from_shell(ext);
 		}
 		return *this;

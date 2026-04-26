@@ -32,7 +32,7 @@ public:
 #endif
 
 	static std::wstring temp() {
-		wchar_t buf[MAX_PATH + 1]{};
+		TCHAR buf[MAX_PATH + 1]{};
 		if (!GetTempPathW(ARRAYSIZE(buf), buf)) { // will have trailing backslash here
 			throw std::system_error(GetLastError(), std::system_category(),
 				"GetTempPath failed");
@@ -44,7 +44,7 @@ public:
 
 private:
 	static std::wstring _get_shell_folder(int clsId) {
-		wchar_t buf[MAX_PATH + 1]{};
+		TCHAR buf[MAX_PATH + 1]{};
 		com::check_hr(
 			SHGetFolderPathW(nullptr, clsId, nullptr, 0, buf), // won't have trailing backslash
 			"SHGetFolderPath failed");

@@ -20,15 +20,15 @@ public:
 		HICON          hIcon = nullptr;
 		HCURSOR        hCursor = nullptr;
 		HBRUSH         hbrBackground = nullptr;
-		const wchar_t* lpszMenuName = nullptr;
-		const wchar_t* lpszClassName = nullptr;
+		const TCHAR* lpszMenuName = nullptr;
+		const TCHAR* lpszClassName = nullptr;
 		HICON          hIconSm = nullptr;
 	};
 
 	// Variables to be set by user, used only during window creation.
 	struct setup_vars {
 		wndclassex_less wndClassEx;
-		const wchar_t* title = nullptr;
+		const TCHAR* title = nullptr;
 		DWORD          style = 0;
 		DWORD          exStyle = 0;
 		POINT          position{};

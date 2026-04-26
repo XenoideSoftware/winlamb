@@ -92,7 +92,7 @@ public:
 		return {p0, p1 - p0}; // start, length
 	}
 
-	textbox& replace_selected(const wchar_t* t) noexcept {
+	textbox& replace_selected(const TCHAR* t) noexcept {
 		SendMessageW(this->_hWnd, EM_REPLACESEL,
 			TRUE, reinterpret_cast<LPARAM>(t));
 		return *this;

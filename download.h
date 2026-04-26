@@ -52,7 +52,7 @@ public:
 		return *this;
 	}
 
-	download& add_request_header(const wchar_t* name, const wchar_t* value) {
+	download& add_request_header(const TCHAR* name, const TCHAR* value) {
 		this->_requestHeaders[name] = value;
 		return *this;
 	}
@@ -177,7 +177,7 @@ private:
 		WinHttpQueryHeaders(this->_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF,
 			WINHTTP_HEADER_NAME_BY_INDEX, WINHTTP_NO_OUTPUT_BUFFER, &rehSize, WINHTTP_NO_HEADER_INDEX);
 
-		std::wstring rawReh(rehSize / sizeof(wchar_t), L'\0'); // raw response headers
+		std::wstring rawReh(rehSize / sizeof(TCHAR), L'\0'); // raw response headers
 
 		if (!WinHttpQueryHeaders(this->_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF,
 			WINHTTP_HEADER_NAME_BY_INDEX, &rawReh[0], &rehSize, WINHTTP_NO_HEADER_INDEX))

@@ -65,14 +65,14 @@ public:
 	}
 
 	// Reads version of an executable or DLL file.
-	bool read(const wchar_t* exeOrDll) {
+	bool read(const TCHAR* exeOrDll) {
 		DWORD szVer = GetFileVersionInfoSizeW(exeOrDll, nullptr);
 		if (!szVer) {
 			throw std::system_error(GetLastError(), std::system_category(),
 				"GetFileVersionInfoSize failed");
 		}
 
-		std::vector<wchar_t> infoBlock(szVer, L'\0');
+		std::vector<TCHAR> infoBlock(szVer, L'\0');
 		if (!GetFileVersionInfoW(exeOrDll, 0, szVer, &infoBlock[0])) {
 			throw std::system_error(GetLastError(), std::system_category(),
 				"GetFileVersionInfo failed");
@@ -106,7 +106,7 @@ public:
 
 	// Reads version of current executable or DLL file itself.
 	bool read_current_exe() {
-		wchar_t buf[MAX_PATH + 1]{};
+		TCHAR buf[MAX_PATH + 1]{};
 		if (!GetModuleFileNameW(nullptr, buf, ARRAYSIZE(buf))) {
 			throw std::system_error(GetLastError(), std::system_category(),
 				"GetModuleFileName failed");

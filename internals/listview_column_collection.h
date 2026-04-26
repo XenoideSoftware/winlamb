@@ -28,10 +28,10 @@ public:
 		return Header_GetItemCount(ListView_GetHeader(this->_hList));
 	}
 
-	listview_column_collection& add(const wchar_t* text, size_t width) noexcept {
+	listview_column_collection& add(const TCHAR* text, size_t width) noexcept {
 		LVCOLUMNW lvc{};
 		lvc.mask = LVCF_TEXT | LVCF_WIDTH;
-		lvc.pszText = const_cast<wchar_t*>(text);
+		lvc.pszText = const_cast<TCHAR*>(text);
 		lvc.cx = static_cast<int>(width);
 		ListView_InsertColumn(this->_hList, 0xFFFF, &lvc);
 		return *this;
@@ -65,10 +65,10 @@ public:
 		return *this;
 	}
 
-	listview_column_collection& set_text(size_t columnIndex, const wchar_t* text) noexcept {
+	listview_column_collection& set_text(size_t columnIndex, const TCHAR* text) noexcept {
 		LVCOLUMNW lvc{};
 		lvc.mask = LVCF_TEXT;
-		lvc.pszText = const_cast<wchar_t*>(text);
+		lvc.pszText = const_cast<TCHAR*>(text);
 		ListView_SetColumn(this->_hList, columnIndex, &lvc);
 		return *this;
 	}
@@ -78,7 +78,7 @@ public:
 	}
 
 	std::wstring get_text(size_t columnIndex) const {
-		wchar_t buf[64]{}; // arbitrary length
+		TCHAR buf[64]{}; // arbitrary length
 		LVCOLUMNW lvc{};
 		lvc.mask = LVCF_TEXT;
 		lvc.pszText = buf;

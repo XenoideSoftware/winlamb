@@ -56,12 +56,12 @@ public:
 		return TreeView_GetVisibleCount(this->_hTree);
 	}
 
-	treeview_item add_root(const wchar_t* text, int imagelistIconIndex = -1) noexcept {
+	treeview_item add_root(const TCHAR* text, int imagelistIconIndex = -1) noexcept {
 		TVINSERTSTRUCTW tvi{};
 		tvi.hParent = TVI_ROOT;
 		tvi.hInsertAfter = TVI_LAST;
 		tvi.itemex.mask = TVIF_TEXT | (imagelistIconIndex == -1 ? 0 : (TVIF_IMAGE | TVIF_SELECTEDIMAGE));
-		tvi.itemex.pszText = const_cast<wchar_t*>(text);
+		tvi.itemex.pszText = const_cast<TCHAR*>(text);
 		tvi.itemex.iImage = imagelistIconIndex;
 		tvi.itemex.iSelectedImage = imagelistIconIndex;
 

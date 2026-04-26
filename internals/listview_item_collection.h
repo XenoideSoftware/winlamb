@@ -33,13 +33,13 @@ public:
 	}
 
 	// Adds a new item to the listview, at a given position, with a given image list icon.
-	listview_item add_at_pos_with_icon(const wchar_t* caption, size_t positionIndex,
+	listview_item add_at_pos_with_icon(const TCHAR* caption, size_t positionIndex,
 		int imageListIconIndex) noexcept
 	{
 		LVITEMW lvi{};
 		lvi.iItem = static_cast<int>(positionIndex == -1 ? 0x0FFFFFFF : positionIndex);
 		lvi.mask = LVIF_TEXT | (imageListIconIndex == -1 ? 0 : LVIF_IMAGE);
-		lvi.pszText = const_cast<wchar_t*>(caption);
+		lvi.pszText = const_cast<TCHAR*>(caption);
 		lvi.iImage = imageListIconIndex;
 
 		return {static_cast<size_t>(ListView_InsertItem(this->_hList, &lvi)),
@@ -55,7 +55,7 @@ public:
 	}
 
 	// Adds a new item to the listview, with a given image list icon.
-	listview_item add_with_icon(const wchar_t* caption, int imageListIconIndex) noexcept {
+	listview_item add_with_icon(const TCHAR* caption, int imageListIconIndex) noexcept {
 		return this->add_at_pos_with_icon(caption, -1, imageListIconIndex);
 	}
 
@@ -65,7 +65,7 @@ public:
 	}
 
 	// Adds a new item to the listview, at a given position.
-	listview_item add_at_pos(const wchar_t* caption, size_t positionIndex) noexcept {
+	listview_item add_at_pos(const TCHAR* caption, size_t positionIndex) noexcept {
 		return this->add_at_pos_with_icon(caption, positionIndex, -1);
 	}
 
@@ -75,7 +75,7 @@ public:
 	}
 
 	// Adds a new item to the listview.
-	listview_item add(const wchar_t* caption) noexcept {
+	listview_item add(const TCHAR* caption) noexcept {
 		return this->add_at_pos_with_icon(caption, -1, -1);
 	}
 
@@ -102,7 +102,7 @@ public:
 	}
 
 	// Returns the first item which caption matches the given string, case-insensitive, or listview_item::npos if none is found.
-	listview_item find(const wchar_t* caption) const noexcept {
+	listview_item find(const TCHAR* caption) const noexcept {
 		LVFINDINFOW lfi{};
 		lfi.flags = LVFI_STRING; // search is case-insensitive
 		lfi.psz = caption;
@@ -116,7 +116,7 @@ public:
 	}
 
 	// Returns true if there is an item which caption matches the given string, case-insensitive.
-	bool exists(const wchar_t* caption) const noexcept {
+	bool exists(const TCHAR* caption) const noexcept {
 		return this->find(caption).index != listview_item::npos;
 	}
 

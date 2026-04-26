@@ -11,6 +11,7 @@
 #include "internals/base_text_pubm.h"
 #include "internals/styler.h"
 #include "wnd.h"
+#include <tchar.h>
 
 namespace wl {
 
@@ -37,14 +38,14 @@ public:
 	button& operator=(button&&) = default; // movable only
 
 	button& create(HWND hParent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size = {75, 23})
+		const TCHAR* caption, POINT pos, SIZE size = {75, 23})
 	{
-		this->_baseNativeCtrl.create(hParent, ctrlId, caption, pos, size, L"Button");
+		this->_baseNativeCtrl.create(hParent, ctrlId, caption, pos, size, _T("Button"));
 		return *this;
 	}
 
 	button& create(const wnd* parent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size = {75, 23})
+		const TCHAR* caption, POINT pos, SIZE size = {75, 23})
 	{
 		return this->create(parent->hwnd(), ctrlId, caption, pos, size);
 	}

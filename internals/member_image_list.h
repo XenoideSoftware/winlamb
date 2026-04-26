@@ -73,14 +73,14 @@ public:
 	}
 
 	// Loads the icon used by Windows Explorer to represent the given file type.
-	controlT& load_from_shell(const wchar_t* fileExtension) {
+	controlT& load_from_shell(const TCHAR* fileExtension) {
 		this->_create_if_not_yet();
 		this->_imageList.load_from_shell(fileExtension);
 		return this->_owner;
 	}
 
 	// Loads the icon used by Windows Explorer to represent the given file type.
-	controlT& load_from_shell(std::initializer_list<const wchar_t*> fileExtensions) {
+	controlT& load_from_shell(std::initializer_list<const TCHAR*> fileExtensions) {
 		this->_create_if_not_yet();
 		this->_imageList.load_from_shell(fileExtensions);
 		return this->_owner;

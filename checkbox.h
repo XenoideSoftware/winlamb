@@ -37,7 +37,7 @@ public:
 	checkbox& operator=(checkbox&&) = default; // movable only
 
 	checkbox& create(HWND hParent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size)
+		const TCHAR* caption, POINT pos, SIZE size)
 	{
 		this->_baseNativeCtrl.create(hParent, ctrlId, caption, pos, size,
 			L"Button", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX);
@@ -45,7 +45,7 @@ public:
 	}
 
 	checkbox& create(const wnd* parent, int ctrlId,
-		const wchar_t* caption, POINT pos, SIZE size)
+		const TCHAR* caption, POINT pos, SIZE size)
 	{
 		return this->create(parent->hwnd(), ctrlId, caption, pos, size);
 	}

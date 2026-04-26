@@ -92,7 +92,7 @@ public:
 
 private:
 	std::wstring _get_caption(UINT identif, BOOL byPos) const {
-		wchar_t captionBuf[64]{}; // arbitrary buffer length
+		TCHAR captionBuf[64]{}; // arbitrary buffer length
 		MENUITEMINFOW mii{};
 		mii.cbSize     = sizeof(mii);
 		mii.cch        = ARRAYSIZE(captionBuf);
@@ -103,10 +103,10 @@ private:
 		return captionBuf;
 	}
 
-	menu& _set_caption(UINT identif, const wchar_t* caption, BOOL byPos) noexcept {
+	menu& _set_caption(UINT identif, const TCHAR* caption, BOOL byPos) noexcept {
 		MENUITEMINFOW mii{};
 		mii.cbSize = sizeof(mii);
-		mii.dwTypeData = const_cast<wchar_t*>(caption);
+		mii.dwTypeData = const_cast<TCHAR*>(caption);
 		mii.fMask = MIIM_STRING;
 
 		SetMenuItemInfoW(this->_hMenu, identif, byPos, &mii);
@@ -116,9 +116,9 @@ private:
 public:
 	std::wstring get_caption_by_pos(size_t pos) const { return this->_get_caption(static_cast<UINT>(pos), TRUE); }
 	std::wstring get_caption_by_id(WORD cmdId) const  { return this->_get_caption(cmdId, FALSE); }
-	menu&        set_caption_by_pos(size_t pos, const wchar_t* caption) noexcept      { return this->_set_caption(static_cast<UINT>(pos), caption, TRUE); }
+	menu&        set_caption_by_pos(size_t pos, const TCHAR* caption) noexcept      { return this->_set_caption(static_cast<UINT>(pos), caption, TRUE); }
 	menu&        set_caption_by_pos(size_t pos, const std::wstring& caption) noexcept { return this->_set_caption(static_cast<UINT>(pos), caption.c_str(), TRUE); }
-	menu&        set_caption_by_id(WORD cmdId, const wchar_t* caption) noexcept       { return this->_set_caption(cmdId, caption, FALSE); }
+	menu&        set_caption_by_id(WORD cmdId, const TCHAR* caption) noexcept       { return this->_set_caption(cmdId, caption, FALSE); }
 	menu&        set_caption_by_id(WORD cmdId, const std::wstring& caption) noexcept  { return this->_set_caption(cmdId, caption.c_str(), FALSE); }
 
 	menu& append_separator() noexcept {
@@ -131,7 +131,7 @@ public:
 		return *this;
 	}
 
-	menu& append_item(WORD cmdId, const wchar_t* caption) noexcept {
+	menu& append_item(WORD cmdId, const TCHAR* caption) noexcept {
 		InsertMenuW(this->_hMenu, -1, MF_BYPOSITION | MF_STRING, cmdId, caption);
 		return *this;
 	}
@@ -140,7 +140,7 @@ public:
 		return this->append_item(cmdId, caption.c_str());
 	}
 
-	menu& insert_item_before_id(WORD newCmdId, WORD beforeCmdId, const wchar_t* caption) noexcept {
+	menu& insert_item_before_id(WORD newCmdId, WORD beforeCmdId, const TCHAR* caption) noexcept {
 		InsertMenuW(this->_hMenu, beforeCmdId, MF_BYCOMMAND | MF_STRING, newCmdId, caption);
 		return *this;
 	}
@@ -228,7 +228,7 @@ public:
 		return *this;
 	}
 
-	menu append_submenu(const wchar_t* caption) const noexcept {
+	menu append_submenu(const TCHAR* caption) const noexcept {
 		menu sub;
 		sub._hMenu = CreatePopupMenu();
 		AppendMenuW(this->_hMenu, MF_STRING | MF_POPUP,
@@ -240,7 +240,7 @@ public:
 		return this->append_submenu(caption.c_str());
 	}
 
-	menu insert_submenu_before_id(WORD beforeCmdId, const wchar_t* caption) const noexcept {
+	menu insert_submenu_before_id(WORD beforeCmdId, const TCHAR* caption) const noexcept {
 		menu sub;
 		sub._hMenu = CreatePopupMenu();
 		InsertMenuW(this->_hMenu, beforeCmdId, MF_POPUP | MF_BYCOMMAND,

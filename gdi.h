@@ -127,7 +127,7 @@ public:
 
 	// Writes a character string at the specified location, using the
 	// currently selected font, background color, and text color.
-	dc& text_out(int x, int y, const wchar_t* text,
+	dc& text_out(int x, int y, const TCHAR* text,
 		size_t numChars = std::wstring::npos) noexcept
 	{
 		TextOutW(this->_hDC, x, y, text,
@@ -146,7 +146,7 @@ public:
 
 	// Draws formatted text in the specified rectangle. It formats the text according to the
 	// specified method (expanding tabs, justifying characters, breaking lines, and so forth).
-	dc& draw_text(int x, int y, int cx, int cy, const wchar_t* text,
+	dc& draw_text(int x, int y, int cx, int cy, const TCHAR* text,
 		UINT fmtFlags = 0, size_t numChars = std::wstring::npos) noexcept
 	{
 		RECT rc{x, y, x + cx, y + cy};
@@ -166,7 +166,7 @@ public:
 	}
 
 	// Gets box size according to GetTextExtentPoint32().
-	SIZE get_text_extent(const wchar_t* text, size_t numChars = std::wstring::npos) const noexcept {
+	SIZE get_text_extent(const TCHAR* text, size_t numChars = std::wstring::npos) const noexcept {
 		SIZE sz{};
 		GetTextExtentPoint32W(this->_hDC, text,
 			(numChars == std::wstring::npos) ? lstrlenW(text) : static_cast<int>(numChars),

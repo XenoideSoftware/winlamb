@@ -62,7 +62,7 @@ inline std::wstring& trim(std::wstring& s) {
 
 // Type-safe sprintf.
 template<typename ...argsT>
-inline std::wstring format(const wchar_t* strFormat, const argsT&... args) {
+inline std::wstring format(const TCHAR* strFormat, const argsT&... args) {
 	return _wli::str_priv::format_raw(lstrlenW(strFormat), strFormat, 
 		std::forward<const argsT&>(args)...);
 }
@@ -75,7 +75,7 @@ inline std::wstring format(const std::wstring& strFormat, const argsT&... args) 
 }
 
 // Compares two strings, case insensitive.
-inline bool eqi(const std::wstring& s, const wchar_t* what) noexcept {
+inline bool eqi(const std::wstring& s, const TCHAR* what) noexcept {
 	return !lstrcmpiW(s.c_str(), what); // str::eq() would be just operator==(), that's why there's no str::eq()
 }
 
@@ -85,7 +85,7 @@ inline bool eqi(const std::wstring& s, const std::wstring& what) noexcept {
 }
 
 // Checks, case sensitive, if the string ends with the given text.
-inline bool ends_with(const std::wstring& s, const wchar_t* what) noexcept {
+inline bool ends_with(const std::wstring& s, const TCHAR* what) noexcept {
 	size_t whatLen = 0;
 	if (!_wli::str_priv::ends_begins_first_check(s, what, whatLen)) {
 		return false;
@@ -94,7 +94,7 @@ inline bool ends_with(const std::wstring& s, const wchar_t* what) noexcept {
 }
 
 // Checks, case insensitive, if the string ends with the given text.
-inline bool ends_withi(const std::wstring& s, const wchar_t* what) noexcept {
+inline bool ends_withi(const std::wstring& s, const TCHAR* what) noexcept {
 	size_t whatLen = 0;
 	if (!_wli::str_priv::ends_begins_first_check(s, what, whatLen)) {
 		return false;
@@ -103,7 +103,7 @@ inline bool ends_withi(const std::wstring& s, const wchar_t* what) noexcept {
 }
 
 // Checks, case sensitive, if the string begins with the given text.
-inline bool begins_with(const std::wstring& s, const wchar_t* what) noexcept {
+inline bool begins_with(const std::wstring& s, const TCHAR* what) noexcept {
 	size_t whatLen = 0;
 	if (!_wli::str_priv::ends_begins_first_check(s, what, whatLen)) {
 		return false;
@@ -112,7 +112,7 @@ inline bool begins_with(const std::wstring& s, const wchar_t* what) noexcept {
 }
 
 // Checks, case insensitive, if the string begins with the given text.
-inline bool begins_withi(const std::wstring& s, const wchar_t* what) noexcept {
+inline bool begins_withi(const std::wstring& s, const TCHAR* what) noexcept {
 	size_t whatLen = 0;
 	if (!_wli::str_priv::ends_begins_first_check(s, what, whatLen)) {
 		return false;
@@ -144,18 +144,18 @@ inline std::wstring& reverse(std::wstring& s) noexcept {
 }
 
 // Reverses the string, in-place.
-inline std::wstring reverse(const wchar_t* s) {
+inline std::wstring reverse(const TCHAR* s) {
 	std::wstring ret = s;
 	return reverse(s);
 }
 
 // Simple diacritics removal, in-place.
 inline std::wstring& remove_diacritics(std::wstring& s) noexcept {
-	const wchar_t* diacritics   = L"ÁáÀàÃãÂâÄäÉéÈèÊêËëÍíÌìÎîÏïÓóÒòÕõÔôÖöÚúÙùÛûÜüÇçÅåÐðÑñØøÝý";
-	const wchar_t* replacements = L"AaAaAaAaAaEeEeEeEeIiIiIiIiOoOoOoOoOoUuUuUuUuCcAaDdNnOoYy";
-	for (wchar_t& ch : s) {
-		const wchar_t* pDiac = diacritics;
-		const wchar_t* pRepl = replacements;
+	const TCHAR* diacritics   = L"ÁáÀàÃãÂâÄäÉéÈèÊêËëÍíÌìÎîÏïÓóÒòÕõÔôÖöÚúÙùÛûÜüÇçÅåÐðÑñØøÝý";
+	const TCHAR* replacements = L"AaAaAaAaAaEeEeEeEeIiIiIiIiOoOoOoOoOoUuUuUuUuCcAaDdNnOoYy";
+	for (TCHAR& ch : s) {
+		const TCHAR* pDiac = diacritics;
+		const TCHAR* pRepl = replacements;
 		while (*pDiac) {
 			if (ch == *pDiac) ch = *pRepl; // in-place replacement
 			++pDiac;
@@ -166,7 +166,7 @@ inline std::wstring& remove_diacritics(std::wstring& s) noexcept {
 }
 
 // Finds index of substring within string, case insensitive.
-inline size_t findi(const std::wstring& haystack, const wchar_t* needle, size_t offset = 0) {
+inline size_t findi(const std::wstring& haystack, const TCHAR* needle, size_t offset = 0) {
 	std::wstring haystack2 = upper(haystack);
 	std::wstring needle2 = needle;
 	CharUpperBuffW(&needle2[0], static_cast<DWORD>(needle2.length()));
@@ -179,7 +179,7 @@ inline size_t findi(const std::wstring& haystack, const std::wstring& needle, si
 }
 
 // Finds index of substring within string, case insensitive, reverse search.
-inline size_t rfindi(const std::wstring& haystack, const wchar_t* needle, size_t offset = 0) {
+inline size_t rfindi(const std::wstring& haystack, const TCHAR* needle, size_t offset = 0) {
 	std::wstring haystack2 = upper(haystack);
 	std::wstring needle2 = needle;
 	CharUpperBuffW(&needle2[0], static_cast<DWORD>(needle2.length()));
@@ -244,7 +244,7 @@ inline std::wstring& replacei(std::wstring& haystack, const std::wstring& needle
 inline bool is_int(const std::wstring& s) noexcept {
 	if (s.empty()) return false;
 	if (s[0] != L'-' && !std::iswdigit(s[0]) && !std::iswblank(s[0])) return false;
-	for (wchar_t ch : s) {
+	for (TCHAR ch : s) {
 		if (!std::iswdigit(ch) && !std::iswblank(ch)) return false;
 	}
 	return true;
@@ -253,7 +253,7 @@ inline bool is_int(const std::wstring& s) noexcept {
 // Does the string represent an unsigned int?
 inline bool is_uint(const std::wstring& s) noexcept {
 	if (s.empty()) return false;
-	for (wchar_t ch : s) {
+	for (TCHAR ch : s) {
 		if (!std::iswdigit(ch) && !std::iswblank(ch)) return false;
 	}
 	return true;
@@ -262,7 +262,7 @@ inline bool is_uint(const std::wstring& s) noexcept {
 // Does the string represent a hexadecimal int?
 inline bool is_hex(const std::wstring& s) noexcept {
 	if (s.empty()) return false;
-	for (wchar_t ch : s) {
+	for (TCHAR ch : s) {
 		if (!std::iswxdigit(ch) && !std::iswblank(ch)) return false;
 	}
 	return true;
@@ -274,7 +274,7 @@ inline bool is_float(const std::wstring& s) noexcept {
 	if (s[0] != L'-' && s[0] != L'.' && !std::iswdigit(s[0]) && !std::iswblank(s[0])) return false;
 
 	bool hasDot = false;
-	for (wchar_t ch : s) {
+	for (TCHAR ch : s) {
 		if (ch == L'.') {
 			if (hasDot) {
 				return false;
@@ -349,7 +349,7 @@ inline encoding_info get_encoding(const std::vector<BYTE>& data) noexcept {
 }
 
 // What linebreak is being used on a given string (unknown, N, R, RN or NR). If different linebreaks are used, only the first one is reported.
-inline const wchar_t* get_linebreak(const std::wstring& s) noexcept {
+inline const TCHAR* get_linebreak(const std::wstring& s) noexcept {
 	for (size_t i = 0; i < s.length() - 1; ++i) {
 		if (s[i] == L'\r') {
 			return s[i + 1] == L'\n' ? L"\r\n" : L"\r";
@@ -434,7 +434,7 @@ inline std::wstring to_wstring(const std::string& s) {
 }
 
 // Converts number to wstring, adding thousand separator.
-inline std::wstring to_wstring_with_separator(int number, wchar_t separator = L',') {
+inline std::wstring to_wstring_with_separator(int number, TCHAR separator = L',') {
 	std::wstring ret;
 	ret.reserve(32); // arbitrary
 
@@ -449,7 +449,7 @@ inline std::wstring to_wstring_with_separator(int number, wchar_t separator = L'
 	bool firstPass = true;
 	do {
 		int num = abso % 1000;
-		wchar_t buf[8]{};
+		TCHAR buf[8]{};
 
 		if (blocks) {
 			if (num < 100) lstrcatW(buf, L"0");
@@ -475,12 +475,12 @@ inline std::wstring to_wstring_with_separator(int number, wchar_t separator = L'
 }
 
 // Converts number to wstring, adding thousand separator.
-inline std::wstring to_wstring_with_separator(size_t number, wchar_t separator = L',') {
+inline std::wstring to_wstring_with_separator(size_t number, TCHAR separator = L',') {
 	return to_wstring_with_separator(static_cast<int>(number), separator);
 }
 
 // Splits the string at the given characters, the characters themselves will be removed.
-inline std::vector<std::wstring> split(const std::wstring& s, const wchar_t* delimiter) {
+inline std::vector<std::wstring> split(const std::wstring& s, const TCHAR* delimiter) {
 	std::vector<std::wstring> ret;
 	if (s.empty()) return ret;
 
@@ -516,14 +516,14 @@ inline std::vector<std::wstring> split_lines(const std::wstring& s) {
 }
 
 // Splits a zero-delimited multi-string.
-inline std::vector<std::wstring> split_multi_zero(const wchar_t* s) {
+inline std::vector<std::wstring> split_multi_zero(const TCHAR* s) {
 	// Example multi-zero string:
 	// L"first one\0second one\0third one\0"
 	// Assumes a well-formed multiStr, which ends with two nulls.
 
 	// Count number of null-delimited strings; string end with double null.
 	size_t numStrings = 0;
-	const wchar_t* pRun = s;
+	const TCHAR* pRun = s;
 	while (*pRun) {
 		++numStrings;
 		pRun += lstrlenW(pRun) + 1;
@@ -543,13 +543,13 @@ inline std::vector<std::wstring> split_multi_zero(const wchar_t* s) {
 }
 
 // Splits string into tokens, which may be enclosed in double quotes.
-inline std::vector<std::wstring> split_quoted(const wchar_t* s) {
+inline std::vector<std::wstring> split_quoted(const TCHAR* s) {
 	// Example quoted string:
 	// "First one" NoQuoteSecond "Third one"
 
 	// Count number of strings.
 	size_t numStrings = 0;
-	const wchar_t* pRun = s;
+	const TCHAR* pRun = s;
 	while (*pRun) {
 		if (*pRun == L'\"') { // begin of quoted string
 			++pRun; // point to 1st char of string
@@ -578,7 +578,7 @@ inline std::vector<std::wstring> split_quoted(const wchar_t* s) {
 
 	// Alloc and copy each string.
 	pRun = s;
-	const wchar_t* pBase;
+	const TCHAR* pBase;
 	int i = 0;
 	while (*pRun) {
 		if (*pRun == L'\"') { // begin of quoted string

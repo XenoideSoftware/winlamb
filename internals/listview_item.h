@@ -143,9 +143,9 @@ public:
 		return buf;
 	}
 
-	listview_item& set_text(const wchar_t* text, size_t columnIndex = 0) noexcept {
+	listview_item& set_text(const TCHAR* text, size_t columnIndex = 0) noexcept {
 		ListView_SetItemText(this->_hList, this->_index,
-			static_cast<int>(columnIndex), const_cast<wchar_t*>(text));
+			static_cast<int>(columnIndex), const_cast<TCHAR*>(text));
 		return *this;
 	}
 
