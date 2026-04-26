@@ -11,6 +11,7 @@
 #include <Windows.h>
 #include <winhttp.h>
 #include <tchar.h>
+#include "tstring.h"
 #pragma comment(lib, "Winhttp.lib")
 
 namespace wl {
@@ -54,7 +55,9 @@ public:
 					"WinHttpCheckPlatform failed, this platform is not supported by WinHTTP");
 			}
 
-			this->_hSession = WinHttpOpen(userAgent, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+			// WinHttpOpen is wide-only (no ANSI variant); widen at the boundary.
+			this->_hSession = WinHttpOpen(wl::to_wstring(userAgent).c_str(),
+				WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
 				WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
 			if (!this->_hSession) {
 				throw std::system_error(GetLastError(), std::system_category(),

@@ -17,13 +17,18 @@ namespace wl {
 namespace _wli {
 
 // Wrapper to WinHttpCrackUrl function.
+//
+// WinHTTP is wide-only (no ANSI variant), so URL_COMPONENTS / its buffers /
+// the cracked-out scheme/host/path strings are always wchar_t. Accessors
+// return const wchar_t* directly, matching wl::com::bstr's pattern. The
+// crack(...) input accepts either TCHAR* or wl::tstring and widens at the
+// boundary under ANSI builds.
 class download_url final {
 private:
 	URL_COMPONENTS _uc{};
-	TCHAR        _scheme[16]{}, _host[64]{}, _user[64]{}, _pwd[64]{}, _path[256]{}, _extra[256]{};
+	wchar_t        _scheme[16]{}, _host[64]{}, _user[64]{}, _pwd[64]{}, _path[256]{}, _extra[256]{};
 
-public:
-	download_url& crack(const TCHAR* address) {
+	void _do_crack(const wchar_t* address) {
 		// This helper class simply breaks an URL address into several parts.
 		SecureZeroMemory(&this->_uc, sizeof(this->_uc));
 		this->_uc.dwStructSize = sizeof(this->_uc);
@@ -39,25 +44,30 @@ public:
 			throw std::system_error(GetLastError(), std::system_category(),
 				"WinHttpCrackUrl failed");
 		}
+	}
 
+public:
+	download_url& crack(const TCHAR* address) {
+		this->_do_crack(wl::to_wstring(address).c_str());
 		return *this;
 	}
 
 	download_url& crack(const wl::tstring& address) {
-		return this->crack(address.c_str());
+		this->_do_crack(wl::to_wstring(address).c_str());
+		return *this;
 	}
 
-	const TCHAR* scheme() const noexcept   { return this->_scheme; }
-	const TCHAR* host() const noexcept     { return this->_host; }
-	const TCHAR* user() const noexcept     { return this->_user; }
-	const TCHAR* pwd() const noexcept      { return this->_pwd; }
-	const TCHAR* path() const noexcept     { return this->_path; }
-	const TCHAR* extra() const noexcept    { return this->_extra; }
+	const wchar_t* scheme() const noexcept { return this->_scheme; }
+	const wchar_t* host() const noexcept   { return this->_host; }
+	const wchar_t* user() const noexcept   { return this->_user; }
+	const wchar_t* pwd() const noexcept    { return this->_pwd; }
+	const wchar_t* path() const noexcept   { return this->_path; }
+	const wchar_t* extra() const noexcept  { return this->_extra; }
 	int            port() const noexcept     { return this->_uc.nPort; }
 	bool           is_https() const noexcept { return this->_uc.nScheme == INTERNET_SCHEME_HTTPS; }
 
-	wl::tstring path_and_extra() const {
-		wl::tstring ret = this->_path;
+	std::wstring path_and_extra() const {
+		std::wstring ret = this->_path;
 		ret.append(this->_extra);
 		return ret;
 	}

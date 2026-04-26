@@ -130,17 +130,21 @@ private:
 		url_crack crackedUrl;
 		crackedUrl.crack(_url);
 
-		// Open the connection handle.
+		// Open the connection handle. WinHTTP is wide-only, so url_crack
+		// accessors return const wchar_t* directly.
 		this->_hConnect = WinHttpConnect(this->_session.hsession(), crackedUrl.host(), crackedUrl.port(), 0);
 		if (!this->_hConnect) {
 			this->_abort_and_throw(GetLastError(), "WinHttpConnect failed");
 		}
 
-		// Build the request handle.
-		wl::tstring fullPath = crackedUrl.path_and_extra();
-		this->_hRequest = WinHttpOpenRequest(this->_hConnect, this->_verb.c_str(),
+		// Build the request handle. Verb/referrer come from the public TCHAR
+		// API; widen at the WinHTTP boundary under ANSI builds.
+		std::wstring wideVerb     = wl::to_wstring(this->_verb);
+		std::wstring wideReferrer = wl::to_wstring(this->_referrer);
+		std::wstring fullPath     = crackedUrl.path_and_extra();
+		this->_hRequest = WinHttpOpenRequest(this->_hConnect, wideVerb.c_str(),
 			fullPath.c_str(), nullptr,
-			this->_referrer.empty() ? WINHTTP_NO_REFERER : this->_referrer.c_str(),
+			this->_referrer.empty() ? WINHTTP_NO_REFERER : wideReferrer.c_str(),
 			WINHTTP_DEFAULT_ACCEPT_TYPES,
 			crackedUrl.is_https() ? WINHTTP_FLAG_SECURE : 0);
 		if (!this->_hRequest) {
@@ -149,13 +153,14 @@ private:
 	}
 
 	void _contact_server() {
-		// Add the request headers to request handle.
-		wl::tstring rhTmp;
+		// Add the request headers to request handle. WinHttpAddRequestHeaders
+		// is wide-only; build each header line as wide.
+		std::wstring rhTmp;
 		rhTmp.reserve(20);
 		for (const insert_order_map<wl::tstring, wl::tstring>::entry& rh : this->_requestHeaders) {
-			rhTmp = rh.key;
-			rhTmp += _T(": ");
-			rhTmp += rh.value;
+			rhTmp = wl::to_wstring(rh.key);
+			rhTmp += L": ";
+			rhTmp += wl::to_wstring(rh.value);
 
 			if (!WinHttpAddRequestHeaders(this->_hRequest, rhTmp.c_str(), static_cast<ULONG>(-1L), WINHTTP_ADDREQ_FLAG_ADD)) {
 				this->_abort_and_throw(GetLastError(), "WinHttpAddRequestHeaders failed");
@@ -174,18 +179,23 @@ private:
 	}
 
 	void _parse_headers() {
-		// Retrieve the response header.
+		// Retrieve the response header. WinHttpQueryHeaders writes wide chars
+		// regardless of _UNICODE; receive into a std::wstring and convert
+		// once for downstream tstring-based parsing.
 		DWORD rehSize = 0;
 		WinHttpQueryHeaders(this->_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF,
 			WINHTTP_HEADER_NAME_BY_INDEX, WINHTTP_NO_OUTPUT_BUFFER, &rehSize, WINHTTP_NO_HEADER_INDEX);
 
-		wl::tstring rawReh(rehSize / sizeof(TCHAR), _T('\0')); // raw response headers
+		std::wstring wideReh(rehSize / sizeof(wchar_t), L'\0');
 
 		if (!WinHttpQueryHeaders(this->_hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF,
-			WINHTTP_HEADER_NAME_BY_INDEX, &rawReh[0], &rehSize, WINHTTP_NO_HEADER_INDEX))
+			WINHTTP_HEADER_NAME_BY_INDEX, &wideReh[0], &rehSize, WINHTTP_NO_HEADER_INDEX))
 		{
 			this->_abort_and_throw(GetLastError(), "WinHttpQueryHeaders failed");
 		}
+
+		wl::tstring rawReh = _wli::str_priv::wide_to_tstring(
+			wideReh.c_str(), static_cast<int>(wideReh.length()));
 
 		// Parse the raw response headers into an associative array.
 		this->_responseHeaders.clear();
